@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{15B4F8A8-9A23-4CEB-8C52-5D966BCC8A1A}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <RootNamespace>IronPythonModule</RootNamespace>
+    <AssemblyName>IronPythonModule</AssemblyName>
+    <UseMSBuildEngine>False</UseMSBuildEngine>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug</OutputPath>
+    <DefineConstants>DEBUG;</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>full</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release</OutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="IronPython">
+      <HintPath>..\..\IronPython-2.7.4\Platforms\Net35\IronPython.dll</HintPath>
+    </Reference>
+    <Reference Include="IronPython.Modules">
+      <HintPath>..\..\IronPython-2.7.4\Platforms\Net35\IronPython.Modules.dll</HintPath>
+    </Reference>
+    <Reference Include="IronPython.SQLite">
+      <HintPath>..\..\IronPython-2.7.4\Platforms\Net35\IronPython.SQLite.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Dynamic">
+      <HintPath>..\..\IronPython-2.7.4\Platforms\Net35\Microsoft.Dynamic.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Scripting.AspNet">
+      <HintPath>..\..\IronPython-2.7.4\Platforms\Net35\Microsoft.Scripting.AspNet.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Scripting.Core">
+      <HintPath>..\..\IronPython-2.7.4\Platforms\Net35\Microsoft.Scripting.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Scripting">
+      <HintPath>..\..\IronPython-2.7.4\Platforms\Net35\Microsoft.Scripting.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Scripting.Metadata">
+      <HintPath>..\..\IronPython-2.7.4\Platforms\Net35\Microsoft.Scripting.Metadata.dll</HintPath>
+    </Reference>
+    <Reference Include="Assembly-CSharp">
+      <HintPath>..\..\..\..\..\..\media\balu\5A38D01A38CFF2D5\Users\balu\Desktop\MagmaEngine\bin\Debug\Assembly-CSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="Facepunch.ID">
+      <HintPath>..\..\..\..\..\..\media\balu\5A38D01A38CFF2D5\Users\balu\Desktop\MagmaEngine\bin\Debug\Facepunch.ID.dll</HintPath>
+    </Reference>
+    <Reference Include="Fougerite">
+      <HintPath>..\..\..\..\..\..\media\balu\5A38D01A38CFF2D5\Users\balu\Desktop\MagmaEngine\bin\Debug\Fougerite.dll</HintPath>
+    </Reference>
+    <Reference Include="uLink">
+      <HintPath>..\..\..\..\..\..\media\balu\5A38D01A38CFF2D5\Users\balu\Desktop\MagmaEngine\bin\Debug\uLink.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine">
+      <HintPath>..\..\..\..\..\..\media\balu\5A38D01A38CFF2D5\Users\balu\Desktop\MagmaEngine\bin\Debug\UnityEngine.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="IPEngine.cs" />
+    <Compile Include="IPPlugin.cs" />
+    <Compile Include="Properties\IPTimedEvent.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+</Project>
