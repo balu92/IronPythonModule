@@ -28,6 +28,12 @@ namespace IronPythonModule
 				Engine = IronPython.Hosting.Python.CreateEngine();
 				Scope = Engine.CreateScope();
 				Scope.SetVariable("Plugin", this);
+				Scope.SetVariable("Server", Fougerite.Server.GetServer());
+				Scope.SetVariable("Data", Fougerite.Data.GetData());
+				Scope.SetVariable("DataStore", DataStore.GetInstance());
+				Scope.SetVariable("Util", Util.GetUtil());
+				Scope.SetVariable("Web", new Web());
+				Scope.SetVariable("World", World.GetWorld());
 				Engine.Execute(code, Scope);
 				Class = Engine.Operations.Invoke(Scope.GetVariable(name));
 				Globals = Engine.Operations.GetMemberNames(Class);
@@ -43,8 +49,118 @@ namespace IronPythonModule
 				}
 			}
 
+			public bool CreateDir(string path)
+			{
+				try
+				{
+					path = ValidateRelativePath(path);
+
+					if (path == null)
+						return false;
+
+					if (Directory.Exists(path))
+						return false;
+
+					Directory.CreateDirectory(path);
+
+					return true;
+				}
+				catch (Exception ex)
+				{
+					Logger.LogException(ex);
+				}
+
+				return false;
+			}
+
+			public IniParser GetIni(string path)
+			{
+				string path1 = Path;
+				path = path1.Replace (Name + ".py", path + ".ini");
+
+				if (path == null)
+					return null;
+
+				if (File.Exists(path))
+					return new IniParser(path);
+
+				return null;
+			}
+
+			public bool IniExists(string path)
+			{
+				string path1 = Path;
+				path = path1.Replace (Name + ".py", path + ".ini");
+
+				if (path == null)
+					return false;
+
+				return File.Exists(path);
+			}
+
+			public IniParser CreateIni(string path)
+			{
+				try
+				{
+					string path1 = Path;
+					path = path1.Replace (Name + ".py", path + ".ini");
+
+					File.WriteAllText(path, "");
+					return new IniParser(path);
+				}
+				catch (Exception ex)
+				{
+					Logger.LogException(ex);
+				}
+				return null;
+			}
+
+			public List<IniParser> GetInis(string path)
+			{
+				string path1 = Path;
+				path = path1.Replace (Name + ".py", path);
+
+				if (path == null)
+					return new List<IniParser>();
+
+				return Directory.GetFiles(path).Select(p => new IniParser(p)).ToList();
+			}
+
+			public void DeleteLog(string path)
+			{
+				string path1 = Path;
+				path = path1.Replace (Name + ".py", path + ".ini");
+
+				if (path == null)
+					return;
+
+				if (File.Exists(path))
+					File.Delete(path);
+			}
+
 			public Plugin GetPlugin(string name) {
 				return IPEngine.Plugins[name];
+			}
+
+			public string GetDate()
+			{
+				return DateTime.Now.ToShortDateString();
+			}
+
+			public int GetTicks()
+			{
+				return Environment.TickCount;
+			}
+
+			public string GetTime()
+			{
+				return DateTime.Now.ToShortTimeString();
+			}
+
+			public long GetTimestamp()
+			{
+				TimeSpan span = (TimeSpan)(DateTime.UtcNow - new DateTime(0x7b2, 1, 1, 0, 0, 0));
+				return (long)span.TotalSeconds;
 			}
 
 			// deal with hooks
