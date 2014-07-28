@@ -32,45 +32,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
-    <Reference Include="Assembly-CSharp">
-      <HintPath>..\..\..\..\..\..\..\..\home\balu\Asztal\Developement\IP-DLLS\Assembly-CSharp.dll</HintPath>
-    </Reference>
-    <Reference Include="Facepunch.ID">
-      <HintPath>..\..\..\..\..\..\..\..\home\balu\Asztal\Developement\IP-DLLS\Facepunch.ID.dll</HintPath>
-    </Reference>
-    <Reference Include="Fougerite">
-      <HintPath>..\..\..\..\..\..\..\..\home\balu\Asztal\Developement\IP-DLLS\Fougerite.dll</HintPath>
-    </Reference>
-    <Reference Include="uLink">
-      <HintPath>..\..\..\..\..\..\..\..\home\balu\Asztal\Developement\IP-DLLS\uLink.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine">
-      <HintPath>..\..\..\..\..\..\..\..\home\balu\Asztal\Developement\IP-DLLS\UnityEngine.dll</HintPath>
-    </Reference>
-    <Reference Include="IronPython">
-      <HintPath>..\..\..\..\..\..\..\..\home\balu\Asztal\Developement\IronPython-2.7.4\Platforms\Net35\IronPython.dll</HintPath>
-    </Reference>
-    <Reference Include="IronPython.Modules">
-      <HintPath>..\..\..\..\..\..\..\..\home\balu\Asztal\Developement\IronPython-2.7.4\Platforms\Net35\IronPython.Modules.dll</HintPath>
-    </Reference>
-    <Reference Include="IronPython.SQLite">
-      <HintPath>..\..\..\..\..\..\..\..\home\balu\Asztal\Developement\IronPython-2.7.4\Platforms\Net35\IronPython.SQLite.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.Dynamic">
-      <HintPath>..\..\..\..\..\..\..\..\home\balu\Asztal\Developement\IronPython-2.7.4\Platforms\Net35\Microsoft.Dynamic.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.Scripting.AspNet">
-      <HintPath>..\..\..\..\..\..\..\..\home\balu\Asztal\Developement\IronPython-2.7.4\Platforms\Net35\Microsoft.Scripting.AspNet.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.Scripting.Core">
-      <HintPath>..\..\..\..\..\..\..\..\home\balu\Asztal\Developement\IronPython-2.7.4\Platforms\Net35\Microsoft.Scripting.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.Scripting">
-      <HintPath>..\..\..\..\..\..\..\..\home\balu\Asztal\Developement\IronPython-2.7.4\Platforms\Net35\Microsoft.Scripting.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.Scripting.Metadata">
-      <HintPath>..\..\..\..\..\..\..\..\home\balu\Asztal\Developement\IronPython-2.7.4\Platforms\Net35\Microsoft.Scripting.Metadata.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
