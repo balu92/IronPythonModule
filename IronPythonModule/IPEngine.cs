@@ -3,9 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using Fougerite;
-using IronPython.Hosting;
-using Microsoft.Scripting;
-using Microsoft.Scripting.Hosting;
 
 namespace IronPythonModule
 {
@@ -29,10 +26,13 @@ namespace IronPythonModule
 
 		public delegate void AllLoadedDelegate();
 
-		public static void AllPluginsLoaded() { if(OnAllLoaded != null) OnAllLoaded(); } // FIXME: why is it always null?
+		//public static void AllPluginsLoaded() { if(OnAllLoaded != null) OnAllLoaded(); } // FIXME: why is it always null?
 		// hooks end
 
-		public override void Initialize (){
+		public override void Initialize () {
+			if (plugins.Count != 0)
+				foreach (IPPlugin.Plugin plug in plugins.Values)
+					RemoveHooks (plug);
 			IPEngine.plugins.Clear ();
 			string[] directories = Directory.GetDirectories(pluginsPath);
 			foreach (string pluginDir in directories) {
@@ -56,7 +56,7 @@ namespace IronPythonModule
 				InstallHooks (plugin);
 				plugins.Add (shortname, plugin);
 			}
-			AllPluginsLoaded ();
+			if(OnAllLoaded != null) OnAllLoaded();
 		}
 
 		private void InstallHooks(IPPlugin.Plugin plugin){
@@ -67,9 +67,6 @@ namespace IronPythonModule
 				switch (method){
 				case "OnServerInit": case "On_ServerInit":
 					Hooks.OnServerInit += new Hooks.ServerInitDelegate (plugin.OnServerInit);
-					break;
-				case "OnPluginInit": case "On_PluginInit":
-					plugin.Invoke ("OnPluginInit", new object[0]);
 					break;
 				case "OnServerShutdown": case "On_ServerShutdown":
 					Hooks.OnServerShutdown += new Hooks.ServerShutdownDelegate (plugin.OnServerShutdown);
@@ -133,6 +130,85 @@ namespace IronPythonModule
 					break;
 				case "OnAllPluginsLoaded": case "On_AllPluginsLoaded":
 					IPEngine.OnAllLoaded += new IPEngine.AllLoadedDelegate (plugin.OnAllPluginsLoaded);
+					break;
+				case "OnPluginInit": case "On_PluginInit":
+					plugin.Invoke ("OnPluginInit", new object[0]);
+					break;
+				}
+			}
+		}
+
+		private void RemoveHooks(IPPlugin.Plugin plugin){
+			foreach(string method in plugin.Globals){
+				if (method.Contains ("__"))
+					continue;
+				Logger.LogDebug ("Removing function: " + method);
+				switch (method){
+				case "OnServerInit": case "On_ServerInit":
+					Hooks.OnServerInit -= new Hooks.ServerInitDelegate (plugin.OnServerInit);
+					break;
+				case "OnServerShutdown": case "On_ServerShutdown":
+					Hooks.OnServerShutdown -= new Hooks.ServerShutdownDelegate (plugin.OnServerShutdown);
+					break;
+				case "OnItemsLoaded": case "On_ItemsLoaded":
+					Hooks.OnItemsLoaded -= new Hooks.ItemsDatablocksLoaded (plugin.OnItemsLoaded);
+					break;
+				case "OnTablesLoaded": case "On_TablesLoaded":
+					Hooks.OnTablesLoaded -= new Hooks.LootTablesLoaded (plugin.OnTablesLoaded);
+					break;
+				case "OnChat": case "On_Chat":
+					Hooks.OnChat -= new Hooks.ChatHandlerDelegate (plugin.OnChat);
+					break;
+				case "OnConsole": case "On_Console":
+					Hooks.OnConsoleReceived -= new Hooks.ConsoleHandlerDelegate (plugin.OnConsole);
+					break;
+				case "OnCommand": case "On_Command":
+					Hooks.OnCommand -= new Hooks.CommandHandlerDelegate (plugin.OnCommand);
+					break;
+				case "OnPlayerConnected": case "On_PlayerConnected":
+					Hooks.OnPlayerConnected -= new Hooks.ConnectionHandlerDelegate (plugin.OnPlayerConnected);
+					break;
+				case "OnPlayerDisconnected": case "On_PlayerDisconnected":
+					Hooks.OnPlayerDisconnected -= new Hooks.DisconnectionHandlerDelegate (plugin.OnPlayerDisconnected);
+					break;
+				case "OnPlayerKilled": case "On_PlayerKilled":
+					Hooks.OnPlayerKilled -= new Hooks.KillHandlerDelegate (plugin.OnPlayerKilled);
+					break;
+				case "OnPlayerHurt": case "On_PlayerHurt":
+					Hooks.OnPlayerHurt -= new Hooks.HurtHandlerDelegate (plugin.OnPlayerHurt);
+					break;
+				case "OnPlayerSpawn": case "On_PlayerSpawn":
+					Hooks.OnPlayerSpawning -= new Hooks.PlayerSpawnHandlerDelegate (plugin.OnPlayerSpawn);
+					break;
+				case "OnPlayerSpawned": case "On_PlayerSpawned":
+					Hooks.OnPlayerSpawned -= new Hooks.PlayerSpawnHandlerDelegate (plugin.OnPlayerSpawned);
+					break;
+				case "OnPlayerGathering": case "On_PlayerGathering":
+					Hooks.OnPlayerGathering -= new Hooks.PlayerGatheringHandlerDelegate (plugin.OnPlayerGathering);
+					break;
+				case "OnEntityHurt": case "On_EntityHurt":
+					Hooks.OnEntityHurt -= new Hooks.EntityHurtDelegate (plugin.OnEntityHurt);
+					break;
+				case "OnEntityDecay": case "On_EntityDecay":
+					Hooks.OnEntityDecay -= new Hooks.EntityDecayDelegate (plugin.OnEntityDecay);
+					break;
+				case "OnEntityDeployed": case "On_EntityDeployed":
+					Hooks.OnEntityDeployed -= new Hooks.EntityDeployedDelegate (plugin.OnEntityDeployed);
+					break;
+				case "OnNPCHurt": case "On_NPCHurt":
+					Hooks.OnNPCHurt -= new Hooks.HurtHandlerDelegate (plugin.OnNPCHurt);
+					break;
+				case "OnNPCKilled": case "On_NPCKilled":
+					Hooks.OnNPCKilled -= new Hooks.KillHandlerDelegate (plugin.OnNPCKilled);
+					break;
+				case "OnBlueprintUse": case "On_BlueprintUse":
+					Hooks.OnBlueprintUse -= new Hooks.BlueprintUseHandlerDelegate(plugin.OnBlueprintUse);
+					break;
+				case "OnDoorUse": case "On_DoorUse":
+					Hooks.OnDoorUse -= new Hooks.DoorOpenHandlerDelegate (plugin.OnDoorUse);
+					break;
+				case "OnAllPluginsLoaded": case "On_AllPluginsLoaded":
+					IPEngine.OnAllLoaded -= new IPEngine.AllLoadedDelegate (plugin.OnAllPluginsLoaded);
 					break;
 				}
 			}

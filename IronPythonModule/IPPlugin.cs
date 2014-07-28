@@ -1,12 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Reflection;
 using System.IO;
 using Fougerite;
 using Fougerite.Events;
-using IronPython.Hosting;
-using IronPython.Runtime;
-using Microsoft.Scripting;
 using Microsoft.Scripting.Hosting;
 
 namespace IronPythonModule
@@ -25,16 +21,16 @@ namespace IronPythonModule
 			public Dictionary<string, IPTimedEvent> Timers { get; private set; }
 
 			public Plugin(string name, string code, string path){
-				//	Name = name;
+				Name = name;
 				Code = code;
 				Path = path;
 				Timers = new Dictionary<string, IPTimedEvent>();
-				Engine = Python.CreateEngine();
+				Engine = IronPython.Hosting.Python.CreateEngine();
 				Scope = Engine.CreateScope();
 				Scope.SetVariable("Plugin", this);
 				Engine.Execute(code, Scope);
 				Class = Engine.Operations.Invoke(Scope.GetVariable(name));
-				Globals = Engine.Operations.GetMemberNames(Class); // FIXME: it finds everything, I need only functions
+				Globals = Engine.Operations.GetMemberNames(Class);
 			}
 
 			public void Invoke(string func, params object[] obj) {
@@ -47,8 +43,12 @@ namespace IronPythonModule
 				}
 			}
 
+			public Plugin GetPlugin(string name) {
+				return IPEngine.Plugins[name];
+			}
+
 			// deal with hooks
-			public void OnPluginInit(){
+			public void OnPluginInit() {
 				try {
 					string func = "OnPluginInit";
 					if (!this.Globals.Contains(func) && this.Globals.Contains("On_PluginInit"))
@@ -65,7 +65,7 @@ namespace IronPythonModule
 			}
 
 			public void OnAllPluginsLoaded(){
-				Invoke("OnPluginsLoaded", new object[0]);
+				Invoke ("On_AllPluginsLoaded", new object[0]);
 			}
 
 			public void OnBlueprintUse (Fougerite.Player player, BPUseEvent evt)
