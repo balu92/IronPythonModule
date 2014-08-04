@@ -128,10 +128,9 @@ namespace IronPythonModule
 				case "OnNPCKilled": case "On_NPCKilled":
 					Hooks.OnNPCKilled += new Hooks.KillHandlerDelegate (plugin.OnNPCKilled);
 					break;
-			//	this works here but there is a problem with it in RemoveHooks, note: wtf
-			//	case "OnBlueprintUse": case "On_BlueprintUse":
-			//		Hooks.OnBlueprintUse += new Hooks.BlueprintUseHandlerDelagate(plugin.OnBlueprintUse);
-			//		break;
+				case "OnBlueprintUse": case "On_BlueprintUse":
+					Hooks.OnBlueprintUse += new Hooks.BlueprintUseHandlerDelagate (plugin.OnBlueprintUse);
+					break;
 				case "OnDoorUse": case "On_DoorUse":
 					Hooks.OnDoorUse += new Hooks.DoorOpenHandlerDelegate (plugin.OnDoorUse);
 					break;
@@ -211,10 +210,9 @@ namespace IronPythonModule
 				case "OnNPCKilled": case "On_NPCKilled":
 					Hooks.OnNPCKilled -= new Hooks.KillHandlerDelegate (plugin.OnNPCKilled);
 					break;
-			//	FIXME: something is broken here (it worked before and all the other still works, so must be fougerite side)
-			//	case "OnBlueprintUse": case "On_BlueprintUse":
-			//		Hooks.OnBlueprintUse -= new Hooks.BlueprintUseHandlerDelegate(plugin.OnBlueprintUse);
-			//		break;
+				case "OnBlueprintUse": case "On_BlueprintUse":
+					Hooks.OnBlueprintUse -= new Hooks.BlueprintUseHandlerDelagate (plugin.OnBlueprintUse);
+					break;
 				case "OnDoorUse": case "On_DoorUse":
 					Hooks.OnDoorUse -= new Hooks.DoorOpenHandlerDelegate (plugin.OnDoorUse);
 					break;

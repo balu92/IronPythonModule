@@ -59,3 +59,6 @@ class Test:
 #		return DecayEvent.DamageAmount
 	def On_EntityDeployed(self, Player, Enity):
 		UnityEngine.Debug.Log(Player.Name + " deployed a(n) " + Entity.Name + " @ " + Player.Location.ToString())
+
+	def On_EntityHurt(self, he):
+		UnityEngine.Debug.Log("python: " + he.Attacker.TimeOnline.ToString())
