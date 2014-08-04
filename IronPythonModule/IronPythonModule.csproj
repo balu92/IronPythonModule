@@ -32,38 +32,38 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="Fougerite">
+      <HintPath>references\Fougerite.dll</HintPath>
+    </Reference>
     <Reference Include="IronPython">
-      <HintPath>..\Example\rust_server_data\Managed\IronPython.dll</HintPath>
+      <HintPath>references\IronPython.dll</HintPath>
     </Reference>
     <Reference Include="IronPython.Modules">
-      <HintPath>..\Example\rust_server_data\Managed\IronPython.Modules.dll</HintPath>
+      <HintPath>references\IronPython.Modules.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.Scripting">
-      <HintPath>..\Example\rust_server_data\Managed\Microsoft.Scripting.dll</HintPath>
+    <Reference Include="Microsoft.Dynamic">
+      <HintPath>references\Microsoft.Dynamic.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Scripting.Core">
-      <HintPath>..\Example\rust_server_data\Managed\Microsoft.Scripting.Core.dll</HintPath>
+      <HintPath>references\Microsoft.Scripting.Core.dll</HintPath>
     </Reference>
-    <Reference Include="Fougerite">
-      <HintPath>F:\Games\Rust\Server2\rust_server_Data\Managed\Fougerite.dll</HintPath>
-    </Reference>
-    <Reference Include="Assembly-CSharp">
-      <HintPath>F:\Games\Rust\Server2\rust_server_Data\Managed\Assembly-CSharp.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine">
-      <HintPath>F:\Games\Rust\Server2\rust_server_Data\Managed\UnityEngine.dll</HintPath>
+    <Reference Include="Microsoft.Scripting">
+      <HintPath>references\Microsoft.Scripting.dll</HintPath>
     </Reference>
     <Reference Include="uLink">
-      <HintPath>F:\Games\Rust\Server2\rust_server_Data\Managed\uLink.dll</HintPath>
+      <HintPath>references\uLink.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine">
+      <HintPath>references\UnityEngine.dll</HintPath>
+    </Reference>
+    <Reference Include="Assembly-CSharp">
+      <HintPath>references\Assembly-CSharp.dll</HintPath>
     </Reference>
     <Reference Include="Facepunch.ID">
-      <HintPath>F:\Games\Rust\Server2\rust_server_Data\Managed\Facepunch.ID.dll</HintPath>
+      <HintPath>references\Facepunch.ID.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Contracts">
-      <HintPath>..\..\mono-contracts\bin\Debug\Microsoft.Contracts.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.Contracts.resources">
-      <HintPath>..\..\mono-contracts\bin\Debug\en\Microsoft.Contracts.resources.dll</HintPath>
+      <HintPath>references\Microsoft.Contracts.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
