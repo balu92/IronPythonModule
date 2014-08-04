@@ -1,11 +1,20 @@
 ﻿<Properties>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="IPPlugin.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="IPTimedEvent.cs">
     <Files>
-      <File FileName="IPEngine.cs" Line="1" Column="1" />
-      <File FileName="IPPlugin.cs" Line="35" Column="4" />
-      <File FileName="IPTimedEvent.cs" Line="1" Column="1" />
+      <File FileName="IPEngine.cs" Line="28" Column="33" />
+      <File FileName="IPPlugin.cs" Line="228" Column="80" />
+      <File FileName="IPTimedEvent.cs" Line="53" Column="5" />
     </Files>
+    <Pads>
+      <Pad Id="ProjectPad">
+        <State expanded="True">
+          <Node name="IronPythonModule" expanded="True">
+            <Node name="References" expanded="True" selected="True" />
+          </Node>
+        </State>
+      </Pad>
+    </Pads>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore />

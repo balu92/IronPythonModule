@@ -8,9 +8,9 @@
     <RootNamespace>IronPythonModule</RootNamespace>
     <AssemblyName>IronPythonModule</AssemblyName>
     <UseMSBuildEngine>False</UseMSBuildEngine>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -32,6 +32,39 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="IronPython">
+      <HintPath>..\Example\rust_server_data\Managed\IronPython.dll</HintPath>
+    </Reference>
+    <Reference Include="IronPython.Modules">
+      <HintPath>..\Example\rust_server_data\Managed\IronPython.Modules.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Scripting">
+      <HintPath>..\Example\rust_server_data\Managed\Microsoft.Scripting.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Scripting.Core">
+      <HintPath>..\Example\rust_server_data\Managed\Microsoft.Scripting.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Fougerite">
+      <HintPath>F:\Games\Rust\Server2\rust_server_Data\Managed\Fougerite.dll</HintPath>
+    </Reference>
+    <Reference Include="Assembly-CSharp">
+      <HintPath>F:\Games\Rust\Server2\rust_server_Data\Managed\Assembly-CSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine">
+      <HintPath>F:\Games\Rust\Server2\rust_server_Data\Managed\UnityEngine.dll</HintPath>
+    </Reference>
+    <Reference Include="uLink">
+      <HintPath>F:\Games\Rust\Server2\rust_server_Data\Managed\uLink.dll</HintPath>
+    </Reference>
+    <Reference Include="Facepunch.ID">
+      <HintPath>F:\Games\Rust\Server2\rust_server_Data\Managed\Facepunch.ID.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Contracts">
+      <HintPath>..\..\mono-contracts\bin\Debug\Microsoft.Contracts.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Contracts.resources">
+      <HintPath>..\..\mono-contracts\bin\Debug\en\Microsoft.Contracts.resources.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />

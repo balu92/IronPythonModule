@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.IO;
 using System.Reflection;
 using Fougerite;
@@ -17,23 +18,27 @@ namespace IronPythonModule
 
 		public static Dictionary<string, IPPlugin.Plugin> Plugins { get { return plugins;} }
 
-		private static string pluginsPath = "modules/IronPythonModule/plugins/";
+		private readonly static string pluginsPath = "modules/IronPythonModule/plugins/";
 
-		private static string[] f = { "IO", "File.", "AppendText", "AppendAllText", "OpenWrite", "WriteAll" };
+		private readonly static string[] f = { "IO", "File.", "AppendText", "AppendAllText", "OpenWrite", "WriteAll" };
 
-		// hooks
+		[ContractInvariantMethod]
+		private void Invariant() {
+			Contract.Invariant (pluginsPath == "modules/IronPythonModule/plugins/");
+			Contract.Invariant (f != null);
+		}
+
 		public static event IPEngine.AllLoadedDelegate OnAllLoaded;
 
 		public delegate void AllLoadedDelegate();
 
-		//public static void AllPluginsLoaded() { if(OnAllLoaded != null) OnAllLoaded(); } // FIXME: why is it always null?
-		// hooks end
-
 		public override void Initialize () {
+
 			if (plugins.Count != 0)
 				foreach (IPPlugin.Plugin plug in plugins.Values)
 					RemoveHooks (plug);
-			IPEngine.plugins.Clear ();
+			plugins.Clear ();
+
 			string[] directories = Directory.GetDirectories(pluginsPath);
 			foreach (string pluginDir in directories) {
 
@@ -48,7 +53,6 @@ namespace IronPythonModule
 				var t = true;
 				foreach (string fi in f)
 					if (script.Contains (fi)) { t = false;}
-
 				if (!t)
 					continue;
 
@@ -60,6 +64,8 @@ namespace IronPythonModule
 		}
 
 		private void InstallHooks(IPPlugin.Plugin plugin){
+			Contract.Requires (plugin != null);
+
 			foreach(string method in plugin.Globals){
 				if (method.Contains ("__"))
 					continue;
@@ -139,9 +145,12 @@ namespace IronPythonModule
 		}
 
 		private void RemoveHooks(IPPlugin.Plugin plugin){
+			Contract.Requires (plugin != null);
+
 			foreach(string method in plugin.Globals){
 				if (method.Contains ("__"))
 					continue;
+
 				Logger.LogDebug ("Removing function: " + method);
 				switch (method){
 				case "OnServerInit": case "On_ServerInit":
