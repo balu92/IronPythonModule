@@ -191,14 +191,14 @@ namespace IronPythonModule
 			}
 
 			public void OnEntityHurt (HurtEvent evt) {
-				if (evt.IsDecay)
-					return; // FIXME: this could be done better in Fougerite.Hooks.OnEntityHurt
-
 				if (evt.DamageEvent.status != LifeStatus.IsAlive) {
-					Events.DestroyEvent de = new Events.DestroyEvent(ref evt.DamageEvent, evt.Entity, false);
+					Events.DestroyEvent de = new Events.DestroyEvent(ref evt.DamageEvent, evt.Entity, evt.IsDecay);
 					IPModule.OnEntityDestroyed (de);
 					return;
 				}
+
+				if (evt.IsDecay)
+					return; // FIXME: this could be done better in Fougerite.Hooks.OnEntityHurt
 
 				this.Invoke ("On_EntityHurt", new object[] { evt });
 			}
