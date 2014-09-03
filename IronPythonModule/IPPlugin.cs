@@ -31,10 +31,9 @@ namespace IronPythonModule
 				Scope = Engine.CreateScope();
 				Scope.SetVariable("Plugin", this);
 				Scope.SetVariable("Server", Fougerite.Server.GetServer());
-				Scope.SetVariable("Data", Fougerite.Data.GetData());
 				Scope.SetVariable("DataStore", DataStore.GetInstance());
 				Scope.SetVariable("Util", Util.GetUtil());
-				Scope.SetVariable("Web", new Web());
+				Scope.SetVariable("Entities", new LookUp());
 				Scope.SetVariable("World", World.GetWorld());
 				Engine.Execute(code, Scope);
 				Class = Engine.Operations.Invoke(Scope.GetVariable(name));
@@ -121,7 +120,7 @@ namespace IronPythonModule
 
 			public IPPlugin.Plugin GetPlugin(string name) {
 				IPPlugin.Plugin plugin;	
-				plugin = IPEngine.Plugins[name];
+				plugin = IPModule.Plugins[name];
 				if (plugin == null)
 					return null;
 				return plugin;

@@ -6,9 +6,9 @@ using Fougerite;
 
 namespace IronPythonModule
 {
-	public class IPEngine : Fougerite.Module
+	public class IPModule : Fougerite.Module
 	{
-		public override string Name { get { return "IPEngine"; } }
+		public override string Name { get { return "IPModule"; } }
 		public override string Author { get { return "balu92"; } }
 		public override string Description { get { return "Python (!Monty)"; } }
 		public override Version Version { get { return Assembly.GetExecutingAssembly().GetName().Version; } }
@@ -21,7 +21,7 @@ namespace IronPythonModule
 
 		private readonly static string[] f = { "IO", "File.", "AppendText", "AppendAllText", "OpenWrite", "WriteAll" };
 
-		public static event IPEngine.AllLoadedDelegate OnAllLoaded;
+		public static event IPModule.AllLoadedDelegate OnAllLoaded;
 
 		public delegate void AllLoadedDelegate();
 
@@ -54,6 +54,40 @@ namespace IronPythonModule
 				plugins.Add (shortname, plugin);
 			}
 			if(OnAllLoaded != null) OnAllLoaded();
+		}
+
+		public override void DeInitialize () {
+			UnloadPlugins ();
+		}
+
+		public void LoadPlugins() {
+			foreach (IPPlugin plugin in plugins) {
+				LoadPlugin (plugin);
+			}
+		}
+
+		public void UnloadPlugins() {
+			foreach (IPPlugin plugin in plugins) {
+				UnloadPlugin (plugin);
+			}
+		}
+
+		public void ReloadPlugins() {
+			UnloadPlugins ();
+			LoadPlugins ();
+		}
+
+		public void LoadPlugin(IPPlugin plugin) {
+			InstallHooks (plugin);
+		}
+
+		public void UnloadPlugin(IPPlugin plugin) {
+			RemoveHooks (plugin);
+		}
+
+		public void ReloadPlugin(IPPlugin plugin) {
+			UnloadPlugin (plugin);
+			LoadPlugin (plugin);
 		}
 
 		private void InstallHooks(IPPlugin.Plugin plugin){
@@ -126,7 +160,7 @@ namespace IronPythonModule
 					Hooks.OnDoorUse += new Hooks.DoorOpenHandlerDelegate (plugin.OnDoorUse);
 					break;
 				case "OnAllPluginsLoaded": case "On_AllPluginsLoaded":
-					IPEngine.OnAllLoaded += new IPEngine.AllLoadedDelegate (plugin.OnAllPluginsLoaded);
+					IPModule.OnAllLoaded += new IPModule.AllLoadedDelegate (plugin.OnAllPluginsLoaded);
 					break;
 				case "OnPluginInit": case "On_PluginInit":
 					plugin.Invoke ("On_PluginInit", new object[0]);
@@ -206,13 +240,13 @@ namespace IronPythonModule
 					Hooks.OnDoorUse -= new Hooks.DoorOpenHandlerDelegate (plugin.OnDoorUse);
 					break;
 				case "OnAllPluginsLoaded": case "On_AllPluginsLoaded":
-					IPEngine.OnAllLoaded -= new IPEngine.AllLoadedDelegate (plugin.OnAllPluginsLoaded);
+					IPModule.OnAllLoaded -= new IPModule.AllLoadedDelegate (plugin.OnAllPluginsLoaded);
 					break;
 				}
 			}
 		}
 
-		public IPEngine () { }
+		public IPModule () { }
 	}
 }
 
