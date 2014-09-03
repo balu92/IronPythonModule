@@ -58,7 +58,7 @@ namespace IronPythonModule
 
 		private void InstallHooks(IPPlugin.Plugin plugin){
 			foreach(string method in plugin.Globals){
-				if (method.Contains ("__"))
+				if (method.StartsWith ("__") || !method.StartsWith("On"))
 					continue;
 				Logger.LogDebug ("Found function: " + method);
 				switch (method){
@@ -129,7 +129,7 @@ namespace IronPythonModule
 					IPEngine.OnAllLoaded += new IPEngine.AllLoadedDelegate (plugin.OnAllPluginsLoaded);
 					break;
 				case "OnPluginInit": case "On_PluginInit":
-					plugin.Invoke ("OnPluginInit", new object[0]);
+					plugin.Invoke ("On_PluginInit", new object[0]);
 					break;
 				}
 			}
@@ -137,7 +137,7 @@ namespace IronPythonModule
 
 		private void RemoveHooks(IPPlugin.Plugin plugin){
 			foreach(string method in plugin.Globals){
-				if (method.Contains ("__"))
+				if (method.StartsWith ("__") || !method.StartsWith("On"))
 					continue;
 
 				Logger.LogDebug ("Removing function: " + method);

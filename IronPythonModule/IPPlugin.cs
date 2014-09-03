@@ -145,18 +145,6 @@ namespace IronPythonModule
 			}
 
 			// deal with hooks
-			public void OnPluginInit() {
-				try {
-					string func = "OnPluginInit";
-					if (!this.Globals.Contains(func) && this.Globals.Contains("On_PluginInit"))
-						func = "On_PluginInit";
-					else return;
-					Engine.Operations.InvokeMember (Class, func, new object[0]);
-				} catch (Exception ex) {
-					Fougerite.Logger.LogException (ex);
-				}
-			}
-
 			public void OnTablesLoaded(Dictionary<string, LootSpawnList> tables) {
 				Invoke ("On_TablesLoaded", tables);
 			}
