@@ -156,9 +156,6 @@ namespace IronPythonModule
 			}
 
 			public void OnChat (Fougerite.Player player, ref ChatString text) {
-				Contract.Requires (player != null);
-				Contract.Requires (text != null);
-
 				this.Invoke ("On_Chat", new object[] { player, text });
 			}
 

@@ -32,7 +32,6 @@ namespace IronPythonModule
 		#region Init/Deinit
 
 		public override void Initialize () {
-
 			if (plugins.Count != 0)
 				foreach (IPPlugin.Plugin plug in plugins.Values)
 					RemoveHooks (plug);
