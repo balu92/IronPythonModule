@@ -177,6 +177,8 @@ namespace IronPythonModule
 			}
 
 			public void OnEntityDecay (DecayEvent evt) {
+				// CONSIDER: if(!evt.Entity...IsAlive) return;
+
 				this.Invoke ("On_EntityDecay", new object[] { evt });
 			}
 
@@ -184,9 +186,20 @@ namespace IronPythonModule
 				this.Invoke ("On_EntityDeployed", new object[] { player, entity });
 			}
 
+			public void OnEntityDestroyed (Events.DestroyEvent evt) {
+				this.Invoke ("On_EntityDestroyed", new object[] { evt });
+			}
+
 			public void OnEntityHurt (HurtEvent evt) {
 				if (evt.IsDecay)
 					return; // FIXME: this could be done better in Fougerite.Hooks.OnEntityHurt
+
+				if (evt.DamageEvent.status != LifeStatus.IsAlive) {
+					Events.DestroyEvent de = new Events.DestroyEvent(ref evt.DamageEvent, evt.Entity, false);
+					IPModule.OnEntityDestroyed (de);
+					return;
+				}
+
 				this.Invoke ("On_EntityHurt", new object[] { evt });
 			}
 

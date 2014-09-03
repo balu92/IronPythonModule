@@ -27,6 +27,10 @@ namespace IronPythonModule
 
 		public delegate void AllLoadedDelegate();
 
+		public static event IPModule.EntityDestroyedDelegate OnEntityDestroyed;
+
+		public delegate void EntityDestroyedDelegate(Events.DestroyEvent de);
+
 		#endregion
 
 		#region Init/Deinit
@@ -161,7 +165,7 @@ namespace IronPythonModule
 					Hooks.OnEntityDecay += new Hooks.EntityDecayDelegate (plugin.OnEntityDecay);
 					break;
 				case "OnEntityDestroyed": case "On_EntityDestroyed":
-					IPModule.OnAllLoaded += new IPModule.AllLoadedDelegate (plugin.OnAllPluginsLoaded);
+					IPModule.OnEntityDestroyed += new IPModule.EntityDestroyedDelegate (plugin.OnEntityDestroyed);
 					break;
 				case "OnEntityDeployed": case "On_EntityDeployed":
 					Hooks.OnEntityDeployed += new Hooks.EntityDeployedDelegate (plugin.OnEntityDeployed);
@@ -242,6 +246,9 @@ namespace IronPythonModule
 					break;
 				case "OnEntityDecay": case "On_EntityDecay":
 					Hooks.OnEntityDecay -= new Hooks.EntityDecayDelegate (plugin.OnEntityDecay);
+					break;
+				case "OnEntityDestroyed": case "On_EntityDestroyed":
+					IPModule.OnEntityDestroyed -= new IPModule.EntityDestroyedDelegate (plugin.OnEntityDestroyed);
 					break;
 				case "OnEntityDeployed": case "On_EntityDeployed":
 					Hooks.OnEntityDeployed -= new Hooks.EntityDeployedDelegate (plugin.OnEntityDeployed);
