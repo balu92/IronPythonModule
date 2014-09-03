@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using System.Collections.Generic;
-using System.Diagnostics.Contracts;
 using System.IO;
 using Fougerite;
 using Fougerite.Events;
@@ -22,25 +21,7 @@ namespace IronPythonModule
 
 			public readonly Dictionary<string, IPTimedEvent> Timers;
 
-			[ContractInvariantMethod]
-			private void Invariant() {
-				Contract.Invariant (string.IsNullOrEmpty(Name));
-				Contract.Invariant (string.IsNullOrEmpty(Code));
-				Contract.Invariant (string.IsNullOrEmpty(Path));
-				Contract.Invariant (Class != null);
-				Contract.Invariant (Engine != null);
-				Contract.Invariant (Scope != null);
-				Contract.Invariant (Globals != null);
-				Contract.Invariant (Timers != null);
-
-			}
-
 			public Plugin(string name, string code, string path) {
-
-				Contract.Requires(string.IsNullOrEmpty(name));
-				Contract.Requires(string.IsNullOrEmpty(code));
-				Contract.Requires(string.IsNullOrEmpty(path));
-
 				Name = name;
 				Code = code;
 				Path = path;
@@ -61,8 +42,6 @@ namespace IronPythonModule
 			}
 
 			public void Invoke(string func, params object[] obj) {
-				Contract.Requires(string.IsNullOrEmpty(func));
-
 				try {
 
 					if (Globals.Contains(func.Replace ("On_", "On")))
@@ -78,8 +57,6 @@ namespace IronPythonModule
 			}
 
 			public bool CreateDir(string path) {
-				Contract.Requires(!string.IsNullOrEmpty(path));
-
 				try {
 					string path1 = Path;
 					path = path1.Replace (Name + ".py", path);
@@ -98,8 +75,6 @@ namespace IronPythonModule
 			}
 
 			public IniParser GetIni(string path) {
-				Contract.Requires (!string.IsNullOrEmpty(path));
-
 				string path1 = Path;
 				path = path1.Replace (Name + ".py", path + ".ini");
 
@@ -110,8 +85,6 @@ namespace IronPythonModule
 			}
 
 			public bool IniExists(string path) {
-				Contract.Requires (!string.IsNullOrEmpty(path));
-
 				string path1 = Path;
 				path = path1.Replace (Name + ".py", path + ".ini");
 
@@ -119,8 +92,6 @@ namespace IronPythonModule
 			}
 
 			public IniParser CreateIni(string path) {
-				Contract.Requires (!string.IsNullOrEmpty(path));
-
 				try {
 					string path1 = Path;
 					path = path1.Replace (Name + ".py", path + ".ini");
@@ -134,8 +105,6 @@ namespace IronPythonModule
 			}
 
 			public List<IniParser> GetInis(string path) {
-				Contract.Requires (!string.IsNullOrEmpty(path));
-
 				string path1 = Path;
 				path = path1.Replace (Name + ".py", path);
 
@@ -143,8 +112,6 @@ namespace IronPythonModule
 			}
 
 			public void DeleteLog(string path) {
-				Contract.Requires (!string.IsNullOrEmpty(path));
-
 				string path1 = Path;
 				path = path1.Replace (Name + ".py", path + ".ini");
 
@@ -153,8 +120,6 @@ namespace IronPythonModule
 			}
 
 			public IPPlugin.Plugin GetPlugin(string name) {
-				Contract.Requires (!string.IsNullOrEmpty(name));
-
 				IPPlugin.Plugin plugin;	
 				plugin = IPEngine.Plugins[name];
 				if (plugin == null)
@@ -201,9 +166,6 @@ namespace IronPythonModule
 			}
 
 			public void OnBlueprintUse (Fougerite.Player player, BPUseEvent evt) {
-				Contract.Requires (player != null);
-				Contract.Requires (evt != null);
-
 				this.Invoke ("On_BlueprintUse", new object[] { player, evt });
 			}
 
@@ -215,16 +177,10 @@ namespace IronPythonModule
 			}
 
 			public void OnCommand (Fougerite.Player player, string command, string[] args) {
-				Contract.Requires (player != null);
-				Contract.Requires (string.IsNullOrEmpty(command));
-				Contract.Requires (args != null);
-
 				this.Invoke ("On_Command", new object[] { player, command, args });
 			}
 
 			public void OnConsole (ref ConsoleSystem.Arg arg, bool external) {
-				Contract.Requires (arg != null);
-
 				Fougerite.Player player = Fougerite.Player.FindByPlayerClient (arg.argUser.playerClient);
 				if (!external) {
 					this.Invoke ("On_Console", new object[] { player, arg });
@@ -234,93 +190,60 @@ namespace IronPythonModule
 			}
 
 			public void OnDoorUse (Fougerite.Player player, DoorEvent evt) {
-				Contract.Requires (player != null);
-				Contract.Requires (evt != null);
-
 				this.Invoke ("On_DoorUse", new object[] { player, evt });
 			}
 
 			public void OnEntityDecay (DecayEvent evt) {
-				Contract.Requires (evt != null);
-
 				this.Invoke ("On_EntityDecay", new object[] { evt });
 			}
 
 			public void OnEntityDeployed (Fougerite.Player player, Entity entity) {
-				Contract.Requires (player != null);
-				Contract.Requires (entity != null);
-
 				this.Invoke ("On_EntityDeployed", new object[] { player, entity });
 			}
 
 			public void OnEntityHurt (HurtEvent evt) {
-				Contract.Requires (evt != null);
-
 				if (evt.IsDecay)
 					return; // FIXME: this could be done better in Fougerite.Hooks.OnEntityHurt
 				this.Invoke ("On_EntityHurt", new object[] { evt });
 			}
 
 			public void OnItemsLoaded (ItemsBlocks items) {
-				Contract.Requires (items != null);
-
 				this.Invoke ("On_ItemsLoaded", new object[] { items });
 			}
 
 			public void OnNPCHurt (HurtEvent evt) {
-				Contract.Requires (evt != null);
-
 				this.Invoke ("On_NPCHurt", new object[] { evt });
 			}
 
 			public void OnNPCKilled (DeathEvent evt) {
-				Contract.Requires (evt != null);
-
 				this.Invoke ("On_NPCKilled", new object[] { evt });
 			}
 
 			public void OnPlayerConnected (Fougerite.Player player) {
-				Contract.Requires (player != null);
-
 				this.Invoke ("On_PlayerConnected", new object []{ player });
 			}
 
 			public void OnPlayerDisconnected (Fougerite.Player player) {
-				Contract.Requires (player != null);
-
 				this.Invoke ("On_PlayerDisconnected", new object[] { player });
 			}
 
 			public void OnPlayerGathering (Fougerite.Player player, GatherEvent evt) {
-				Contract.Requires (player != null);
-				Contract.Requires (evt != null);
-
 				this.Invoke ("On_PlayerGathering", new object[] { player, evt });
 			}
 
 			public void OnPlayerHurt (HurtEvent evt) {
-				Contract.Requires (evt != null);
-
 				this.Invoke ("On_PlayerHurt", new object[] { evt });
 			}
 
 			public void OnPlayerKilled (DeathEvent evt) {
-				Contract.Requires (evt != null);
-
 				this.Invoke ("On_PlayerKilled", new object[] { evt });
 			}
 
 			public void OnPlayerSpawn (Fougerite.Player player, SpawnEvent evt) {
-				Contract.Requires (player != null);
-				Contract.Requires (evt != null);
-
 				this.Invoke ("On_PlayerSpawning", new object[] { player, evt });
 			}
 
 			public void OnPlayerSpawned (Fougerite.Player player, SpawnEvent evt) {
-				Contract.Requires (player != null);
-				Contract.Requires (evt != null);
-
 				this.Invoke ("On_PlayerSpawned", new object[] { player, evt });
 			}
 
@@ -349,9 +272,6 @@ namespace IronPythonModule
 			// dealt with hooks
 
 			public IPTimedEvent CreateTimer (string name, int timeoutDelay) {
-				Contract.Requires (string.IsNullOrEmpty(name));
-				Contract.Requires (timeoutDelay > 0);
-				 
 				IPTimedEvent result;
 				IPTimedEvent timedEvent = GetTimer (name);
 				if (timedEvent == null) {
@@ -366,9 +286,6 @@ namespace IronPythonModule
 			}
 
 			public IPTimedEvent CreateTimer (string name, int timeoutDelay, Dictionary<string, object> args) {
-				Contract.Requires (string.IsNullOrEmpty(name));
-				Contract.Requires (timeoutDelay > 0);
-
 				IPTimedEvent timedEvent = CreateTimer (name, timeoutDelay);
 				timedEvent.Args = args;
 				timedEvent.OnFire -= new IPTimedEvent.TimedEventFireDelegate (OnTimerCB);
@@ -377,8 +294,6 @@ namespace IronPythonModule
 			}
 
 			public IPTimedEvent GetTimer (string name) {
-				Contract.Requires (string.IsNullOrEmpty(name));
-
 				IPTimedEvent result;
 				if (Timers.ContainsKey (name)) {
 					result = Timers [name];
@@ -389,8 +304,6 @@ namespace IronPythonModule
 			}
 
 			public void KillTimer (string name) {
-				Contract.Requires (string.IsNullOrEmpty(name));
-
 				IPTimedEvent timer = GetTimer (name);
 				if (timer != null)
 					return;
@@ -407,9 +320,6 @@ namespace IronPythonModule
 			}
 
 			public void Log (string path, string text) {
-				Contract.Requires (string.IsNullOrEmpty(path));
-				Contract.Requires (string.IsNullOrEmpty(text));
-
 				string path1 = Path;
 				File.AppendAllText (path1.Replace(Name + ".py", path + ".ini"), string.Concat (new string[] {
 					"[", DateTime.Now.ToShortDateString (), " ",

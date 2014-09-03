@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.Contracts;
 using System.IO;
 using System.Reflection;
 using Fougerite;
@@ -21,12 +20,6 @@ namespace IronPythonModule
 		private readonly static string pluginsPath = "modules/IronPythonModule/plugins/";
 
 		private readonly static string[] f = { "IO", "File.", "AppendText", "AppendAllText", "OpenWrite", "WriteAll" };
-
-		[ContractInvariantMethod]
-		private void Invariant() {
-			Contract.Invariant (pluginsPath == "modules/IronPythonModule/plugins/");
-			Contract.Invariant (f != null);
-		}
 
 		public static event IPEngine.AllLoadedDelegate OnAllLoaded;
 
@@ -64,8 +57,6 @@ namespace IronPythonModule
 		}
 
 		private void InstallHooks(IPPlugin.Plugin plugin){
-			Contract.Requires (plugin != null);
-
 			foreach(string method in plugin.Globals){
 				if (method.Contains ("__"))
 					continue;
@@ -145,8 +136,6 @@ namespace IronPythonModule
 		}
 
 		private void RemoveHooks(IPPlugin.Plugin plugin){
-			Contract.Requires (plugin != null);
-
 			foreach(string method in plugin.Globals){
 				if (method.Contains ("__"))
 					continue;

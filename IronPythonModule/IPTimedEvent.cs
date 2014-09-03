@@ -20,16 +20,7 @@ namespace IronPythonModule {
 		public event TimedEventFireDelegate OnFire;
 		public event TimedEventFireArgsDelegate OnFireArgs;
 
-		[ContractInvariantMethod]
-		private void Invariant() {
-			Contract.Invariant (_timer != null);
-			Contract.Invariant (string.IsNullOrEmpty(_name));
-		}
-
 		public IPTimedEvent(string name, double interval) {
-			Contract.Requires (string.IsNullOrEmpty(name));
-			Contract.Requires (interval > 0); //probably change this to 500/1000 or so, don't create microtimers
-
 			this._name = name;
 			this._timer = new System.Timers.Timer();
 			this._timer.Interval = interval;
@@ -39,8 +30,6 @@ namespace IronPythonModule {
 
 		public IPTimedEvent(string name, double interval, Dictionary<string, object> args)
 			: this(name, interval) {
-			Contract.Requires (args != null);
-
 			this.Args = args;
 		}
 
