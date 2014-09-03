@@ -75,8 +75,6 @@ namespace IronPythonModule {
 		public int ElapsedCount {
 			get { return this._elapsedCount; }
 		}
-
-		public IPTimedEvent () { }
 	}
 }
 

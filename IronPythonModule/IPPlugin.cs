@@ -42,7 +42,6 @@ namespace IronPythonModule
 
 			public void Invoke(string func, params object[] obj) {
 				try {
-
 					if (Globals.Contains(func.Replace ("On_", "On")))
 						func = func.Replace ("On_", "On");
 
@@ -317,8 +316,6 @@ namespace IronPythonModule
 				return new Dictionary<string, object>();
 			}
 		}
-
-		public IPPlugin () { }
 	}
 }
 

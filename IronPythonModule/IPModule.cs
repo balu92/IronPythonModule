@@ -19,11 +19,17 @@ namespace IronPythonModule
 
 		private readonly static string pluginsPath = "modules/IronPythonModule/plugins/";
 
-		private readonly static string[] f = { "IO", "File.", "AppendText", "AppendAllText", "OpenWrite", "WriteAll" };
+		private readonly static string[] filters = { "IO", "File.", "AppendText", "AppendAllText", "OpenWrite", "WriteAll" };
+
+		#region hooks
 
 		public static event IPModule.AllLoadedDelegate OnAllLoaded;
 
 		public delegate void AllLoadedDelegate();
+
+		#endregion
+
+		#region Init/Deinit
 
 		public override void Initialize () {
 
@@ -43,10 +49,13 @@ namespace IronPythonModule
 					continue;
 
 				string script = System.IO.File.ReadAllText (path);
-				var t = true;
-				foreach (string fi in f)
-					if (script.Contains (fi)) { t = false;}
-				if (!t)
+				var clean = true;
+				foreach (string filter in filters)
+					if (script.Contains (filter)) {
+						clean = false;
+						Logger.LogWarning ("[IPModule] " + pluginName + " contains: '" + filter + "' and is disabled, due to file operation restrictions.");
+					}
+				if (!clean)
 					continue;
 
 				var plugin = new IPPlugin.Plugin (shortname, script, path);
@@ -59,6 +68,10 @@ namespace IronPythonModule
 		public override void DeInitialize () {
 			UnloadPlugins ();
 		}
+
+		#endregion
+
+		#region re/un/loadplugin(s)
 
 		public void LoadPlugins() {
 			foreach (IPPlugin plugin in plugins) {
@@ -89,6 +102,10 @@ namespace IronPythonModule
 			UnloadPlugin (plugin);
 			LoadPlugin (plugin);
 		}
+
+		#endregion
+
+		#region install/remove hooks
 
 		private void InstallHooks(IPPlugin.Plugin plugin){
 			foreach(string method in plugin.Globals){
@@ -143,6 +160,9 @@ namespace IronPythonModule
 					break;
 				case "OnEntityDecay": case "On_EntityDecay":
 					Hooks.OnEntityDecay += new Hooks.EntityDecayDelegate (plugin.OnEntityDecay);
+					break;
+				case "OnEntityDestroyed": case "On_EntityDestroyed":
+					IPModule.OnAllLoaded += new IPModule.AllLoadedDelegate (plugin.OnAllPluginsLoaded);
 					break;
 				case "OnEntityDeployed": case "On_EntityDeployed":
 					Hooks.OnEntityDeployed += new Hooks.EntityDeployedDelegate (plugin.OnEntityDeployed);
@@ -246,7 +266,7 @@ namespace IronPythonModule
 			}
 		}
 
-		public IPModule () { }
+		#endregion
 	}
 }
 
