@@ -42,9 +42,6 @@ namespace IronPythonModule
 
 			public void Invoke(string func, params object[] obj) {
 				try {
-					if (Globals.Contains(func.Replace ("On_", "On")))
-						func = func.Replace ("On_", "On");
-
 					if(Globals.Contains(func))
 						Engine.Operations.InvokeMember (Class, func, obj);
 					else

@@ -112,80 +112,80 @@ namespace IronPythonModule
 
 		private void InstallHooks(IPPlugin.Plugin plugin){
 			foreach(string method in plugin.Globals){
-				if (method.StartsWith ("__") || !method.StartsWith("On"))
+				if (!method.StartsWith("On_") || !method.EndsWith("Callback"))
 					continue;
 				Logger.LogDebug ("Found function: " + method);
 				switch (method){
-				case "OnServerInit": case "On_ServerInit":
+				 case "On_ServerInit":
 					Hooks.OnServerInit += new Hooks.ServerInitDelegate (plugin.OnServerInit);
 					break;
-				case "OnServerShutdown": case "On_ServerShutdown":
+				case "On_ServerShutdown":
 					Hooks.OnServerShutdown += new Hooks.ServerShutdownDelegate (plugin.OnServerShutdown);
 					break;
-				case "OnItemsLoaded": case "On_ItemsLoaded":
+				case "On_ItemsLoaded":
 					Hooks.OnItemsLoaded += new Hooks.ItemsDatablocksLoaded (plugin.OnItemsLoaded);
 					break;
-				case "OnTablesLoaded": case "On_TablesLoaded":
+				case "On_TablesLoaded":
 					Hooks.OnTablesLoaded += new Hooks.LootTablesLoaded (plugin.OnTablesLoaded);
 					break;
-				case "OnChat": case "On_Chat":
+				case "On_Chat":
 					Hooks.OnChat += new Hooks.ChatHandlerDelegate (plugin.OnChat);
 					break;
-				case "OnConsole": case "On_Console":
+				case "On_Console":
 					Hooks.OnConsoleReceived += new Hooks.ConsoleHandlerDelegate (plugin.OnConsole);
 					break;
-				case "OnCommand": case "On_Command":
+				case "On_Command":
 					Hooks.OnCommand += new Hooks.CommandHandlerDelegate (plugin.OnCommand);
 					break;
-				case "OnPlayerConnected": case "On_PlayerConnected":
+				case "On_PlayerConnected":
 					Hooks.OnPlayerConnected += new Hooks.ConnectionHandlerDelegate (plugin.OnPlayerConnected);
 					break;
-				case "OnPlayerDisconnected": case "On_PlayerDisconnected":
+				case "On_PlayerDisconnected":
 					Hooks.OnPlayerDisconnected += new Hooks.DisconnectionHandlerDelegate (plugin.OnPlayerDisconnected);
 					break;
-				case "OnPlayerKilled": case "On_PlayerKilled":
+				case "On_PlayerKilled":
 					Hooks.OnPlayerKilled += new Hooks.KillHandlerDelegate (plugin.OnPlayerKilled);
 					break;
-				case "OnPlayerHurt": case "On_PlayerHurt":
+				case "On_PlayerHurt":
 					Hooks.OnPlayerHurt += new Hooks.HurtHandlerDelegate (plugin.OnPlayerHurt);
 					break;
-				case "OnPlayerSpawn": case "On_PlayerSpawn":
+				case "On_PlayerSpawn":
 					Hooks.OnPlayerSpawning += new Hooks.PlayerSpawnHandlerDelegate (plugin.OnPlayerSpawn);
 					break;
-				case "OnPlayerSpawned": case "On_PlayerSpawned":
+				case "On_PlayerSpawned":
 					Hooks.OnPlayerSpawned += new Hooks.PlayerSpawnHandlerDelegate (plugin.OnPlayerSpawned);
 					break;
-				case "OnPlayerGathering": case "On_PlayerGathering":
+				case "On_PlayerGathering":
 					Hooks.OnPlayerGathering += new Hooks.PlayerGatheringHandlerDelegate (plugin.OnPlayerGathering);
 					break;
-				case "OnEntityHurt": case "On_EntityHurt":
+				case "On_EntityHurt":
 					Hooks.OnEntityHurt += new Hooks.EntityHurtDelegate (plugin.OnEntityHurt);
 					break;
-				case "OnEntityDecay": case "On_EntityDecay":
+				case "On_EntityDecay":
 					Hooks.OnEntityDecay += new Hooks.EntityDecayDelegate (plugin.OnEntityDecay);
 					break;
-				case "OnEntityDestroyed": case "On_EntityDestroyed":
+				case "On_EntityDestroyed":
 					IPModule.OnEntityDestroyed += new IPModule.EntityDestroyedDelegate (plugin.OnEntityDestroyed);
 					break;
-				case "OnEntityDeployed": case "On_EntityDeployed":
+				case "On_EntityDeployed":
 					Hooks.OnEntityDeployed += new Hooks.EntityDeployedDelegate (plugin.OnEntityDeployed);
 					break;
-				case "OnNPCHurt": case "On_NPCHurt":
+				case "On_NPCHurt":
 					Hooks.OnNPCHurt += new Hooks.HurtHandlerDelegate (plugin.OnNPCHurt);
 					break;
-				case "OnNPCKilled": case "On_NPCKilled":
+				case "On_NPCKilled":
 					Hooks.OnNPCKilled += new Hooks.KillHandlerDelegate (plugin.OnNPCKilled);
 					break;
-				case "OnBlueprintUse": case "On_BlueprintUse":
+				case "On_BlueprintUse":
 					Hooks.OnBlueprintUse += new Hooks.BlueprintUseHandlerDelagate (plugin.OnBlueprintUse);
 					break;
-				case "OnDoorUse": case "On_DoorUse":
+				case "On_DoorUse":
 					Hooks.OnDoorUse += new Hooks.DoorOpenHandlerDelegate (plugin.OnDoorUse);
 					break;
-				case "OnAllPluginsLoaded": case "On_AllPluginsLoaded":
+				case "On_AllPluginsLoaded":
 					IPModule.OnAllLoaded += new IPModule.AllLoadedDelegate (plugin.OnAllPluginsLoaded);
 					break;
-				case "OnPluginInit": case "On_PluginInit":
+				case "On_PluginInit":
 					plugin.Invoke ("On_PluginInit", new object[0]);
 					break;
 				}
@@ -194,78 +194,78 @@ namespace IronPythonModule
 
 		private void RemoveHooks(IPPlugin.Plugin plugin){
 			foreach(string method in plugin.Globals){
-				if (method.StartsWith ("__") || !method.StartsWith("On"))
+				if (!method.StartsWith("On_") || !method.EndsWith("Callback"))
 					continue;
 
 				Logger.LogDebug ("Removing function: " + method);
 				switch (method){
-				case "OnServerInit": case "On_ServerInit":
+				case "On_ServerInit":
 					Hooks.OnServerInit -= new Hooks.ServerInitDelegate (plugin.OnServerInit);
 					break;
-				case "OnServerShutdown": case "On_ServerShutdown":
+				case "On_ServerShutdown":
 					Hooks.OnServerShutdown -= new Hooks.ServerShutdownDelegate (plugin.OnServerShutdown);
 					break;
-				case "OnItemsLoaded": case "On_ItemsLoaded":
+				case "On_ItemsLoaded":
 					Hooks.OnItemsLoaded -= new Hooks.ItemsDatablocksLoaded (plugin.OnItemsLoaded);
 					break;
-				case "OnTablesLoaded": case "On_TablesLoaded":
+				case "On_TablesLoaded":
 					Hooks.OnTablesLoaded -= new Hooks.LootTablesLoaded (plugin.OnTablesLoaded);
 					break;
-				case "OnChat": case "On_Chat":
+				case "On_Chat":
 					Hooks.OnChat -= new Hooks.ChatHandlerDelegate (plugin.OnChat);
 					break;
-				case "OnConsole": case "On_Console":
+				case "On_Console":
 					Hooks.OnConsoleReceived -= new Hooks.ConsoleHandlerDelegate (plugin.OnConsole);
 					break;
-				case "OnCommand": case "On_Command":
+				case "On_Command":
 					Hooks.OnCommand -= new Hooks.CommandHandlerDelegate (plugin.OnCommand);
 					break;
-				case "OnPlayerConnected": case "On_PlayerConnected":
+				case "On_PlayerConnected":
 					Hooks.OnPlayerConnected -= new Hooks.ConnectionHandlerDelegate (plugin.OnPlayerConnected);
 					break;
-				case "OnPlayerDisconnected": case "On_PlayerDisconnected":
+				case "On_PlayerDisconnected":
 					Hooks.OnPlayerDisconnected -= new Hooks.DisconnectionHandlerDelegate (plugin.OnPlayerDisconnected);
 					break;
-				case "OnPlayerKilled": case "On_PlayerKilled":
+				case "On_PlayerKilled":
 					Hooks.OnPlayerKilled -= new Hooks.KillHandlerDelegate (plugin.OnPlayerKilled);
 					break;
-				case "OnPlayerHurt": case "On_PlayerHurt":
+				case "On_PlayerHurt":
 					Hooks.OnPlayerHurt -= new Hooks.HurtHandlerDelegate (plugin.OnPlayerHurt);
 					break;
-				case "OnPlayerSpawn": case "On_PlayerSpawn":
+				case "On_PlayerSpawn":
 					Hooks.OnPlayerSpawning -= new Hooks.PlayerSpawnHandlerDelegate (plugin.OnPlayerSpawn);
 					break;
-				case "OnPlayerSpawned": case "On_PlayerSpawned":
+				case "On_PlayerSpawned":
 					Hooks.OnPlayerSpawned -= new Hooks.PlayerSpawnHandlerDelegate (plugin.OnPlayerSpawned);
 					break;
-				case "OnPlayerGathering": case "On_PlayerGathering":
+				case "On_PlayerGathering":
 					Hooks.OnPlayerGathering -= new Hooks.PlayerGatheringHandlerDelegate (plugin.OnPlayerGathering);
 					break;
-				case "OnEntityHurt": case "On_EntityHurt":
+				case "On_EntityHurt":
 					Hooks.OnEntityHurt -= new Hooks.EntityHurtDelegate (plugin.OnEntityHurt);
 					break;
-				case "OnEntityDecay": case "On_EntityDecay":
+				case "On_EntityDecay":
 					Hooks.OnEntityDecay -= new Hooks.EntityDecayDelegate (plugin.OnEntityDecay);
 					break;
-				case "OnEntityDestroyed": case "On_EntityDestroyed":
+				case "On_EntityDestroyed":
 					IPModule.OnEntityDestroyed -= new IPModule.EntityDestroyedDelegate (plugin.OnEntityDestroyed);
 					break;
-				case "OnEntityDeployed": case "On_EntityDeployed":
+				case "On_EntityDeployed":
 					Hooks.OnEntityDeployed -= new Hooks.EntityDeployedDelegate (plugin.OnEntityDeployed);
 					break;
-				case "OnNPCHurt": case "On_NPCHurt":
+				case "On_NPCHurt":
 					Hooks.OnNPCHurt -= new Hooks.HurtHandlerDelegate (plugin.OnNPCHurt);
 					break;
-				case "OnNPCKilled": case "On_NPCKilled":
+				case "On_NPCKilled":
 					Hooks.OnNPCKilled -= new Hooks.KillHandlerDelegate (plugin.OnNPCKilled);
 					break;
-				case "OnBlueprintUse": case "On_BlueprintUse":
+				case "On_BlueprintUse":
 					Hooks.OnBlueprintUse -= new Hooks.BlueprintUseHandlerDelagate (plugin.OnBlueprintUse);
 					break;
-				case "OnDoorUse": case "On_DoorUse":
+				case "On_DoorUse":
 					Hooks.OnDoorUse -= new Hooks.DoorOpenHandlerDelegate (plugin.OnDoorUse);
 					break;
-				case "OnAllPluginsLoaded": case "On_AllPluginsLoaded":
+				case "On_AllPluginsLoaded":
 					IPModule.OnAllLoaded -= new IPModule.AllLoadedDelegate (plugin.OnAllPluginsLoaded);
 					break;
 				}
