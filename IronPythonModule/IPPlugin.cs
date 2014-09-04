@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Reflection;
 using System.Collections.Generic;
 using System.IO;
 using Fougerite;
@@ -13,18 +14,18 @@ namespace IronPythonModule
 		public class Plugin {
 			public readonly string Name;
 			public readonly string Code;
-			public readonly string Path;
 			public readonly object Class;
+			public readonly DirectoryInfo RootDir;
 			public readonly ScriptEngine Engine;
 			public readonly ScriptScope Scope;
 			public readonly IList<string> Globals;
 
 			public readonly Dictionary<string, IPTimedEvent> Timers;
 
-			public Plugin(string name, string code, string path) {
+			public Plugin(string name, string code, DirectoryInfo path) {
 				Name = name;
 				Code = code;
-				Path = path;
+				RootDir = path;
 				Timers = new Dictionary<string, IPTimedEvent>();
 
 				Engine = IronPython.Hosting.Python.CreateEngine();
@@ -42,7 +43,7 @@ namespace IronPythonModule
 
 			public void Invoke(string func, params object[] obj) {
 				try {
-					if(Globals.Contains(func))
+					if (Globals.Contains(func))
 						Engine.Operations.InvokeMember (Class, func, obj);
 					else
 						Fougerite.Logger.LogDebug ("[IronPython] Function: " + func + " not found in plugin: " + Name);
@@ -51,27 +52,133 @@ namespace IronPythonModule
 				}
 			}
 
+			#region file operations
+
+			private static string NormalizePath(string path) {
+				return Path.GetFullPath(new Uri(path).LocalPath)
+					.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+			}
+
+			private string ValidateRelativePath(string path) {
+				string normalizedPath = NormalizePath(Path.Combine(RootDir.FullName, path));
+				string rootDirNormalizedPath = NormalizePath(RootDir.FullName);
+
+				if (!normalizedPath.StartsWith(rootDirNormalizedPath))
+					return null;
+
+				return normalizedPath;
+			}
+
 			public bool CreateDir(string path) {
 				try {
-					string path1 = Path;
-					path = path1.Replace (Name + ".py", path);
-
-					if (Directory.Exists(path))
+					path = ValidateRelativePath(path);
+					if (path == null)
 						return false;
 
-					Directory.CreateDirectory(path);
+					if (Directory.Exists(path))
+						return true;
 
+					Directory.CreateDirectory(path);
 					return true;
 				} catch (Exception ex) {
 					Logger.LogException(ex);
 				}
-
 				return false;
 			}
 
+			public void ToJsonFile(string path, string json)
+			{
+				path = ValidateRelativePath(path + ".json");
+				File.WriteAllText(path, json);
+			}
+
+			public string FromJsonFile(string path)
+			{
+				string json = @"";
+				path = ValidateRelativePath(path + ".json");
+				if (File.Exists(path))
+					json = File.ReadAllText(path);
+
+				return json;
+			}
+
+			public void DumpPropsToFile(string path, object obj) {
+				path = ValidateRelativePath(path + ".dump");
+				if (path == null)
+					return;
+
+				string objprops;
+				string nuline = "\r\n";
+
+				if (obj is AppDomain)
+					objprops = "Public properties of appDomain: " + ((AppDomain)obj).FriendlyName + nuline + nuline;
+				else
+					objprops = "Public properties of: " + obj.GetType() + nuline + nuline;
+
+				PropertyInfo[] pInfos = obj.GetType().GetProperties();
+
+				foreach (PropertyInfo pInfo in pInfos) {
+					objprops += pInfo.Name + " = " + pInfo.GetValue (obj, null).ToString () + nuline;
+				}
+
+				File.AppendAllText (path, objprops + nuline);
+			}
+
+			public void DeleteLog(string path)
+			{
+				path = ValidateRelativePath(path + ".log");
+				if (path == null)
+					return;
+
+				if (File.Exists(path))
+					File.Delete(path);
+			}
+
+			public void Log(string path, string text)
+			{
+				path = ValidateRelativePath(path + ".log");
+				if (path == null)
+					return;
+
+				File.AppendAllText(path, "[" + DateTime.Now.ToShortDateString() + " " + DateTime.Now.ToShortTimeString() + "] " + text + "\r\n");
+			}
+
+			public void RotateLog(string logfile, int max = 6)
+			{
+				logfile = ValidateRelativePath(logfile + ".log");
+				if (logfile == null)
+					return;
+
+				string pathh, pathi;
+				int i, h;
+				for (i = max, h = i - 1; i > 1; i--, h--) {
+					pathi = ValidateRelativePath(logfile + i + ".log");
+					pathh = ValidateRelativePath(logfile + h + ".log");
+
+					try {
+						if (!File.Exists(pathi))
+							File.Create(pathi);
+
+						if (!File.Exists(pathh)) {
+							File.Replace(logfile, pathi, null);
+						} else {
+							File.Replace(pathh, pathi, null);
+						}
+					} catch (Exception ex) {
+						Logger.LogError("[JintPlugin] RotateLog " + logfile + ", " + pathh + ", " + pathi + ", " + ex);
+						continue;
+					}
+				}
+			}
+
+			#endregion
+
+			#region inifiles
+
 			public IniParser GetIni(string path) {
-				string path1 = Path;
-				path = path1.Replace (Name + ".py", path + ".ini");
+				path = ValidateRelativePath(path + ".ini");
+				if (path == null)
+					return;
 
 				if (File.Exists(path))
 					return new IniParser(path);
@@ -80,39 +187,35 @@ namespace IronPythonModule
 			}
 
 			public bool IniExists(string path) {
-				string path1 = Path;
-				path = path1.Replace (Name + ".py", path + ".ini");
+				path = ValidateRelativePath(path + ".ini");
+				if (path == null)
+					return (IniParser) null;
 
 				return File.Exists(path);
 			}
 
 			public IniParser CreateIni(string path) {
 				try {
-					string path1 = Path;
-					path = path1.Replace (Name + ".py", path + ".ini");
+					path = ValidateRelativePath(path + ".ini");
+					if (path == null)
+						return (IniParser) null;
 
 					File.WriteAllText(path, "");
 					return new IniParser(path);
 				} catch (Exception ex) {
 					Logger.LogException(ex);
 				}
-				return null;
+				return (IniParser) null;
 			}
 
 			public List<IniParser> GetInis(string path) {
-				string path1 = Path;
-				path = path1.Replace (Name + ".py", path);
+				path = ValidateRelativePath(path);
+				if (path == null)
 
 				return Directory.GetFiles(path).Select(p => new IniParser(p)).ToList();
 			}
 
-			public void DeleteLog(string path) {
-				string path1 = Path;
-				path = path1.Replace (Name + ".py", path + ".ini");
-
-				if (File.Exists(path))
-					File.Delete(path);
-			}
+			#endregion
 
 			public IPPlugin.Plugin GetPlugin(string name) {
 				IPPlugin.Plugin plugin;	
@@ -122,6 +225,9 @@ namespace IronPythonModule
 				return plugin;
 			}
 
+			#region time
+			// CONSIDER: putting these into a separate class along with some new shortcut
+			//				Time.GetDate() looks more appropriate than Plugin.GetDate()
 			public string GetDate() {
 				return DateTime.Now.ToShortDateString();
 			}
@@ -139,7 +245,10 @@ namespace IronPythonModule
 				return (long)span.TotalSeconds;
 			}
 
-			// deal with hooks
+			#endregion
+
+			#region hooks
+
 			public void OnTablesLoaded(Dictionary<string, LootSpawnList> tables) {
 				Invoke ("On_TablesLoaded", tables);
 			}
@@ -195,7 +304,7 @@ namespace IronPythonModule
 				}
 
 				if (evt.IsDecay)
-					return; // FIXME: this could be done better in Fougerite.Hooks.OnEntityHurt
+					return; // NOTE: this should be done in Fougerite.Hooks imo
 
 				this.Invoke ("On_EntityHurt", new object[] { evt });
 			}
@@ -262,27 +371,28 @@ namespace IronPythonModule
 				}
 			}
 
-			// dealt with hooks
+			#endregion
+
+			#region timer methods
 
 			public IPTimedEvent CreateTimer (string name, int timeoutDelay) {
-				IPTimedEvent result;
 				IPTimedEvent timedEvent = GetTimer (name);
 				if (timedEvent == null) {
 					timedEvent = new IPTimedEvent (name, (double)timeoutDelay);
 					timedEvent.OnFire += new IPTimedEvent.TimedEventFireDelegate (OnTimerCB);
 					Timers.Add(name, timedEvent);
-					result = timedEvent;
-				} else {
-					result = timedEvent;
 				}
-				return result;
+				return timedEvent;
 			}
 
 			public IPTimedEvent CreateTimer (string name, int timeoutDelay, Dictionary<string, object> args) {
-				IPTimedEvent timedEvent = CreateTimer (name, timeoutDelay);
-				timedEvent.Args = args;
-				timedEvent.OnFire -= new IPTimedEvent.TimedEventFireDelegate (OnTimerCB);
-				timedEvent.OnFireArgs += new IPTimedEvent.TimedEventFireArgsDelegate (OnTimerCBArgs);
+				IPTimedEvent timedEvent = GetTimer (name);
+				if (timedEvent == null) {
+					timedEvent = new IPTimedEvent (name, (double)timeoutDelay);
+					timedEvent.Args = args;
+					timedEvent.OnFireArgs += new IPTimedEvent.TimedEventFireArgsDelegate (OnTimerCBArgs);
+					Timers.Add(name, timedEvent);
+				}
 				return timedEvent;
 			}
 
@@ -312,13 +422,9 @@ namespace IronPythonModule
 				Timers.Clear ();
 			}
 
-			public void Log (string path, string text) {
-				string path1 = Path;
-				File.AppendAllText (path1.Replace(Name + ".py", path + ".ini"), string.Concat (new string[] {
-					"[", DateTime.Now.ToShortDateString (), " ",
-					DateTime.Now.ToShortTimeString (), "] ", text, "\r\n" }));
-			}
+			#endregion
 
+			// temporarly, for my laziness
 			public Dictionary<string, object> CreateDict() {
 				return new Dictionary<string, object>();
 			}
