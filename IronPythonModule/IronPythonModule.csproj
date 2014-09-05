@@ -32,33 +32,35 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
-    <Reference Include="Fougerite">
-      <HintPath>references\Fougerite.dll</HintPath>
-    </Reference>
-    <Reference Include="uLink">
-      <HintPath>references\uLink.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine">
-      <HintPath>references\UnityEngine.dll</HintPath>
-    </Reference>
     <Reference Include="Assembly-CSharp">
-      <HintPath>references\Assembly-CSharp.dll</HintPath>
+      <HintPath>ref\Assembly-CSharp.dll</HintPath>
     </Reference>
     <Reference Include="Facepunch.ID">
-      <HintPath>references\Facepunch.ID.dll</HintPath>
+      <HintPath>ref\Facepunch.ID.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.Contracts">
-      <HintPath>references\Microsoft.Contracts.dll</HintPath>
+    <Reference Include="Fougerite">
+      <HintPath>ref\Fougerite.dll</HintPath>
     </Reference>
     <Reference Include="IronPython.Deps">
-      <HintPath>references\IronPython.Deps.dll</HintPath>
+      <HintPath>ref\IronPython.Deps.dll</HintPath>
+    </Reference>
+    <Reference Include="uLink">
+      <HintPath>ref\uLink.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine">
+      <HintPath>ref\UnityEngine.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="IPEngine.cs" />
     <Compile Include="IPPlugin.cs" />
     <Compile Include="IPTimedEvent.cs" />
+    <Compile Include="LookUp.cs" />
+    <Compile Include="IPModule.cs" />
+    <Compile Include="FougeriteEx\DestroyEvent.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <ItemGroup>
+    <Folder Include="FougeriteEx\" />
+  </ItemGroup>
 </Project>

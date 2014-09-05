@@ -1,10 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-using System.Threading;
-using System.Timers;
+﻿namespace IronPythonModule {
 
-namespace IronPythonModule {
+	using System;
+	using System.Collections.Generic;
+	using System.Runtime.CompilerServices;
+	using System.Threading;
+	using System.Timers;
+
 	public class IPTimedEvent {
 
 		private Dictionary<string, object> _args;

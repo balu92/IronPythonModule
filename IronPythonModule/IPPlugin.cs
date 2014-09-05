@@ -1,17 +1,17 @@
-﻿using System;
-using System.Linq;
-using System.Reflection;
-using System.Globalization;
-using System.ComponentModel;
-using System.Collections.Generic;
-using System.Collections;
-using System.IO;
-using Fougerite;
-using Fougerite.Events;
-using Microsoft.Scripting.Hosting;
-
-namespace IronPythonModule
+﻿namespace IronPythonModule
 {
+	using System;
+	using System.Linq;
+	using System.Reflection;
+	using System.Globalization;
+	using System.ComponentModel;
+	using System.Collections.Generic;
+	using System.Collections;
+	using System.IO;
+	using Fougerite;
+	using Fougerite.Events;
+	using Microsoft.Scripting.Hosting;
+
 	public class IPPlugin {
 
 		public readonly string Name;
