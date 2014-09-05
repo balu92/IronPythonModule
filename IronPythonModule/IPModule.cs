@@ -144,7 +144,7 @@ namespace IronPythonModule
 
 		private void InstallHooks(IPPlugin.Plugin plugin) {
 			foreach (string method in plugin.Globals) {
-				if (!method.StartsWith("On_") || !method.EndsWith("Callback"))
+				if (!method.StartsWith("On_") && !method.EndsWith("Callback"))
 					continue;
 
 				Logger.LogDebug ("Found function: " + method);
@@ -179,7 +179,7 @@ namespace IronPythonModule
 
 		private void RemoveHooks(IPPlugin.Plugin plugin){
 			foreach(string method in plugin.Globals){
-				if (!method.StartsWith("On_") || !method.EndsWith("Callback"))
+				if (!method.StartsWith("On_") && !method.EndsWith("Callback"))
 					continue;
 
 				Logger.LogDebug ("Removing function: " + method);
