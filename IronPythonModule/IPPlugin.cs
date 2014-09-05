@@ -109,17 +109,22 @@ namespace IronPythonModule
 			string nuline = "\r\n";
 
 			if (obj is AppDomain)
-				objprops = "Public properties of appDomain: " + ((AppDomain)obj).FriendlyName + nuline + nuline;
+				objprops = "Appdomain.FriendlyName: " + ((AppDomain)obj).FriendlyName + nuline + nuline;
 			else
-				objprops = "Public properties of: " + obj.GetType() + nuline + nuline;
+				objprops = "Type: " + obj.GetType() + nuline + nuline;
 
 			PropertyInfo[] pInfos = obj.GetType().GetProperties();
 
+			string name;
+			string value;
+
 			foreach (PropertyInfo pInfo in pInfos) {
-				objprops += pInfo.Name + " = " + pInfo.GetValue (obj, null).ToString () + nuline;
+				try { name = pInfo.Name; } catch (Exception ex) { name = ex.Message; }
+				try { value = pInfo.GetValue(obj, null).ToString(); } catch (Exception ex) { value = ex.Message; }
+				objprops += name + " = " + value + nuline;
 			}
 
-			File.AppendAllText (path, objprops + nuline);
+			File.AppendAllText(path, objprops + nuline);
 		}
 
 		public void DeleteLog(string path) {
