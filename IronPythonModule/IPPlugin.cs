@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Linq;
 using System.Reflection;
+using System.Globalization;
+using System.ComponentModel;
 using System.Collections.Generic;
+using System.Collections;
 using System.IO;
 using Fougerite;
 using Fougerite.Events;
@@ -99,47 +102,113 @@ namespace IronPythonModule
 	 
 	 		return json;
 	 	}
-	 
-		public void DumpPropsToFile(string path, object obj) {
-			path = ValidateRelativePath(path + ".dump");
-			if (path == null)
-				return;
-
-			string objprops;
+		// start dumper
+		public string ObjToString(object obj, int depth = 1, int tabNum = 0) {
+			string tab = string.Empty, firstlastline = string.Empty;
 			string nuline = "\r\n";
+			if (tabNum != 0) {
+				for (var a = 0; a < (tabNum - 1); a++)
+					tab += "\t";
 
-			if (obj is AppDomain)
-				objprops = "Appdomain.FriendlyName: " + ((AppDomain)obj).FriendlyName + nuline + nuline;
-			else
-				objprops = "Type: " + obj.GetType() + nuline + nuline;
+				for (var i = 0; i < tabNum; i++)
+					tab += "\t";
+			}
+			string result = firstlastline + "{\r\n" +
+				tab + "Type: " + obj.GetType().ToString() + nuline + tab;
 
-			PropertyInfo[] pInfos = obj.GetType().GetProperties();
-
-			string name;
-			string value;
-
-			foreach (PropertyInfo pInfo in pInfos) {
-				name = pInfo.Name;
-
-				try {
-					value = pInfo.GetValue(obj, null).ToString();
-					objprops += name + " = " + value + nuline;
-				} catch (Exception ex) {
-					value = GetParams(pInfo.GetIndexParameters());
-					objprops += name + ":" + nuline + value + nuline;
+			if (obj == null) {
+				result += "null" + WriteType("Null") + nuline;
+			} else if (obj is DateTime) {
+				result += ((DateTime)obj).ToShortDateString() + WriteType("DateTime") + nuline;
+			} else if (obj is ValueType || obj is string) {
+				result += obj.ToString() + WriteType(obj.GetType().ToString()) + nuline;
+			} else if (obj is IEnumerable){
+				if(depth > 0){
+					foreach (object elem in (IEnumerable)obj){
+						if (elem == null) {
+							result += "null" + WriteType("Null") + nuline;
+							continue;
+						}
+						result += ObjToString(elem, (depth - 1), (tabNum + 1));
+					}
+				} else {
+					result += "[...]" + WriteType(obj.GetType().ToString()) + nuline;
+				}
+			} else {
+				if (depth > 0) {
+					MemberInfo[] members = obj.GetType().GetMembers(BindingFlags.Public | BindingFlags.Instance | BindingFlags.NonPublic);
+					bool propWritten = false;
+					foreach (MemberInfo mInfo in members) {
+						FieldInfo fInfo = mInfo as FieldInfo;
+						PropertyInfo pInfo = mInfo as PropertyInfo;
+						if (fInfo != null || pInfo != null) {
+							if (propWritten) {
+								result += tab;
+							} else {
+								propWritten = true;
+							}
+							result += mInfo.Name + ": ";
+							Type type = fInfo != null ? fInfo.FieldType : pInfo.PropertyType;
+							if (type.IsValueType || type == typeof(string)) {
+								result += (fInfo != null ? fInfo.GetValue(obj) : pInfo.GetValue(obj, null)) + nuline;
+							} else {
+								if (typeof(IEnumerable).IsAssignableFrom (type)) {
+									if(depth > 0){
+										foreach (object elem in (IEnumerable)obj) {
+											if (elem == null) {
+												result += "null" + WriteType("Null") + nuline;
+												continue;
+											}
+											result += ObjToString(elem, (depth - 1), (tabNum + 1));
+										}
+									} else {
+										result += "[...]" + WriteType(type.GetType().ToString()) + nuline;
+									}
+								} else {
+									if (depth > 0) {
+										result += ObjToString(pInfo.GetValue(obj, null), (depth - 1), (tabNum + 1));
+									} else {
+										result += "{...}" + WriteType(pInfo.GetValue(obj, null).GetType().ToString()) + nuline;
+									}
+								}
+							}
+						}
+					}
+				} else {
+					result += "{...}" + WriteType(obj.GetType().ToString()) + nuline;
 				}
 			}
-
-			File.AppendAllText(path, objprops + nuline);
+			return result + nuline + firstlastline + "}\r\n";
 		}
 
-		public string GetParams(ParameterInfo[] paramsInfo) {
-			string result = "\tLength: " + paramsInfo.Length + "\r\n";
-			foreach (ParameterInfo paramInfo in paramsInfo) {
-				result += "\t" + paramInfo.ToString() + "\r\n";
-			}
-			return result;
+		public string WriteType(string type) {
+			return "(" + type + ")";
 		}
+
+		public string DumpProps(object obj) {
+			return "{\r\n" + string.Join(",\r\n", 
+				TypeDescriptor.GetProperties(obj)
+				.Cast<PropertyDescriptor>()
+				.Select(p => string.Format(CultureInfo.CurrentCulture, "\t{0}: {1}", p.Name, p.GetValue(obj))).ToArray()) + "\r\n}\r\n\r\n";
+		}
+
+		// worst method name...
+		public bool TryDumpObjToFile(string path, object obj, string type = "deep", int depth = 1) {
+			path = ValidateRelativePath(path + ".dump");
+			if (path == null)
+				return false;
+
+			string result = string.Empty;
+
+			if (type.ToLower() == "deep")
+				try { result = ObjToString(obj, depth); } catch { return false; }
+			else if (type.ToLower() == "safe")
+				try { result = DumpProps(obj); } catch { return false; }
+
+			File.AppendAllText(path, result);
+			return true;
+		}
+		// dumper end
 
 		public void DeleteLog(string path) {
 			path = ValidateRelativePath(path + ".log");
