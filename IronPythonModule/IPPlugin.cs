@@ -213,8 +213,8 @@ namespace IronPythonModule
 
 		#endregion
 
-		public IPPlugin.Plugin GetPlugin(string name) {
-			IPPlugin.Plugin plugin;	
+		public IPPlugin GetPlugin(string name) {
+			IPPlugin plugin;	
 			plugin = IPModule.Plugins[name];
 			if (plugin == null)
 				return null;
