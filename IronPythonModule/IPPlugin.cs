@@ -119,12 +119,26 @@ namespace IronPythonModule
 			string value;
 
 			foreach (PropertyInfo pInfo in pInfos) {
-				try { name = pInfo.Name; } catch (Exception ex) { name = ex.Message; }
-				try { value = pInfo.GetValue(obj, null).ToString(); } catch (Exception ex) { value = ex.Message; }
-				objprops += name + " = " + value + nuline;
+				name = pInfo.Name;
+
+				try {
+					value = pInfo.GetValue(obj, null).ToString();
+					objprops += name + " = " + value + nuline;
+				} catch (Exception ex) {
+					value = GetParams(pInfo.GetIndexParameters());
+					objprops += name + ":" + nuline + value + nuline;
+				}
 			}
 
 			File.AppendAllText(path, objprops + nuline);
+		}
+
+		public string GetParams(ParameterInfo[] paramsInfo) {
+			string result = "\tLength: " + paramsInfo.Length + "\r\n";
+			foreach (ParameterInfo paramInfo in paramsInfo) {
+				result += "\t" + paramInfo.ToString() + "\r\n";
+			}
+			return result;
 		}
 
 		public void DeleteLog(string path) {
