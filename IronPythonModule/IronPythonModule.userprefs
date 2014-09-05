@@ -1,13 +1,13 @@
 ﻿<Properties>
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="IPPlugin.cs">
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Release" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="IPModule.cs">
     <Files>
-      <File FileName="IPModule.cs" Line="269" Column="13" />
-      <File FileName="IPPlugin.cs" Line="318" Column="4" />
-      <File FileName="IPTimedEvent.cs" Line="77" Column="4" />
+      <File FileName="IPModule.cs" Line="1" Column="1" />
+      <File FileName="IPPlugin.cs" Line="2" Column="2" />
+      <File FileName="IPTimedEvent.cs" Line="1" Column="1" />
       <File FileName="Properties\AssemblyInfo.cs" Line="1" Column="1" />
-      <File FileName="Data.cs" Line="5" Column="2" />
-      <File FileName="LookUp.cs" Line="30" Column="7" />
+      <File FileName="LookUp.cs" Line="1" Column="1" />
+      <File FileName="FougeriteEx\DestroyEvent.cs" Line="1" Column="1" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
