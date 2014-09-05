@@ -13,8 +13,8 @@ namespace IronPythonModule
 		public override string Description { get { return "Python (!Monty)"; } }
 		public override Version Version { get { return Assembly.GetExecutingAssembly().GetName().Version; } }
 
-		private Dictionary<string, IPPlugin.Plugin> plugins;
-		public Dictionary<string, IPPlugin.Plugin> Plugins{ get { return plugins; } }
+		private static Dictionary<string, IPPlugin.Plugin> plugins;
+		public static Dictionary<string, IPPlugin.Plugin> Plugins{ get { return plugins; } }
 		private DirectoryInfo pluginDirectory;
 
 		#region hooks
@@ -27,13 +27,17 @@ namespace IronPythonModule
 
 		public delegate void EntityDestroyedDelegate(Events.DestroyEvent de);
 
+		public static void EntityDestroyed(Events.DestroyEvent de) {
+			OnEntityDestroyed (de);
+		}
+
 		#endregion
 
 		#region Init/Deinit
 
 		public override void Initialize () {
 			pluginDirectory = new DirectoryInfo(ModuleFolder);
-			plugins = new Dictionary<string, IPPlugin>();
+			plugins = new Dictionary<string, IPPlugin.Plugin>();
 			ReloadPlugins ();
 		}
 
@@ -129,9 +133,9 @@ namespace IronPythonModule
 			}
 		}
 
-		public void ReloadPlugin(IPPlugin plugin) {
-			UnloadPlugin(plugin);
-			LoadPlugin(plugin);
+		public void ReloadPlugin(IPPlugin.Plugin plugin) {
+			UnloadPlugin(plugin.Name);
+			LoadPlugin(plugin.Name);
 		}
 
 		#endregion

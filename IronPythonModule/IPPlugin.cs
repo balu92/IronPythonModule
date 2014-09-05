@@ -178,7 +178,7 @@ namespace IronPythonModule
 			public IniParser GetIni(string path) {
 				path = ValidateRelativePath(path + ".ini");
 				if (path == null)
-					return;
+					return (IniParser) null;
 
 				if (File.Exists(path))
 					return new IniParser(path);
@@ -189,7 +189,7 @@ namespace IronPythonModule
 			public bool IniExists(string path) {
 				path = ValidateRelativePath(path + ".ini");
 				if (path == null)
-					return (IniParser) null;
+					return false;
 
 				return File.Exists(path);
 			}
@@ -211,6 +211,7 @@ namespace IronPythonModule
 			public List<IniParser> GetInis(string path) {
 				path = ValidateRelativePath(path);
 				if (path == null)
+					return new List<IniParser>();
 
 				return Directory.GetFiles(path).Select(p => new IniParser(p)).ToList();
 			}
@@ -298,8 +299,9 @@ namespace IronPythonModule
 
 			public void OnEntityHurt (HurtEvent evt) {
 				if (evt.DamageEvent.status != LifeStatus.IsAlive) {
-					Events.DestroyEvent de = new Events.DestroyEvent(ref evt.DamageEvent, evt.Entity, evt.IsDecay);
-					IPModule.OnEntityDestroyed (de);
+					DamageEvent dmgEvt = evt.DamageEvent;
+					Events.DestroyEvent de = new Events.DestroyEvent(ref dmgEvt, evt.Entity, evt.IsDecay);
+					IPModule.EntityDestroyed (de);
 					return;
 				}
 
