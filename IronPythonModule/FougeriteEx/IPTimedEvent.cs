@@ -1,5 +1,4 @@
-﻿namespace IronPythonModule {
-
+﻿namespace IronPythonModule.Events {
 	using System;
 	using System.Collections.Generic;
 	using System.Runtime.CompilerServices;

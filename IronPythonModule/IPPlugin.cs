@@ -1,5 +1,4 @@
-﻿namespace IronPythonModule
-{
+﻿namespace IronPythonModule {
 	using System;
 	using System.Linq;
 	using System.Reflection;
@@ -10,6 +9,7 @@
 	using System.IO;
 	using Fougerite;
 	using Fougerite.Events;
+	using IronPythonModule.Events;
 	using Microsoft.Scripting.Hosting;
 
 	public class IPPlugin {
@@ -102,110 +102,48 @@
 	 
 	 		return json;
 	 	}
-		// start dumper
-		public string ObjToString(object obj, int depth = 1, int tabNum = 0) {
-			string tab = string.Empty, firstlastline = string.Empty;
-			string nuline = "\r\n";
-			if (tabNum != 0) {
-				for (var a = 0; a < (tabNum - 1); a++)
-					tab += "\t";
 
-				for (var i = 0; i < tabNum; i++)
-					tab += "\t";
-			}
-			string result = firstlastline + "{\r\n" +
-				tab + "Type: " + obj.GetType().ToString() + nuline + tab;
-
-			if (obj == null) {
-				result += "null" + WriteType("Null") + nuline;
-			} else if (obj is DateTime) {
-				result += ((DateTime)obj).ToShortDateString() + WriteType("DateTime") + nuline;
-			} else if (obj is ValueType || obj is string) {
-				result += obj.ToString() + WriteType(obj.GetType().ToString()) + nuline;
-			} else if (obj is IEnumerable){
-				if(depth > 0){
-					foreach (object elem in (IEnumerable)obj){
-						if (elem == null) {
-							result += "null" + WriteType("Null") + nuline;
-							continue;
-						}
-						result += ObjToString(elem, (depth - 1), (tabNum + 1));
-					}
-				} else {
-					result += "[...]" + WriteType(obj.GetType().ToString()) + nuline;
-				}
-			} else {
-				if (depth > 0) {
-					MemberInfo[] members = obj.GetType().GetMembers(BindingFlags.Public | BindingFlags.Instance | BindingFlags.NonPublic);
-					bool propWritten = false;
-					foreach (MemberInfo mInfo in members) {
-						FieldInfo fInfo = mInfo as FieldInfo;
-						PropertyInfo pInfo = mInfo as PropertyInfo;
-						if (fInfo != null || pInfo != null) {
-							if (propWritten) {
-								result += tab;
-							} else {
-								propWritten = true;
-							}
-							result += mInfo.Name + ": ";
-							Type type = fInfo != null ? fInfo.FieldType : pInfo.PropertyType;
-							if (type.IsValueType || type == typeof(string)) {
-								result += (fInfo != null ? fInfo.GetValue(obj) : pInfo.GetValue(obj, null)) + nuline;
-							} else {
-								if (typeof(IEnumerable).IsAssignableFrom (type)) {
-									if(depth > 0){
-										foreach (object elem in (IEnumerable)obj) {
-											if (elem == null) {
-												result += "null" + WriteType("Null") + nuline;
-												continue;
-											}
-											result += ObjToString(elem, (depth - 1), (tabNum + 1));
-										}
-									} else {
-										result += "[...]" + WriteType(type.GetType().ToString()) + nuline;
-									}
-								} else {
-									if (depth > 0) {
-										result += ObjToString(pInfo.GetValue(obj, null), (depth - 1), (tabNum + 1));
-									} else {
-										result += "{...}" + WriteType(pInfo.GetValue(obj, null).GetType().ToString()) + nuline;
-									}
-								}
-							}
-						}
-					}
-				} else {
-					result += "{...}" + WriteType(obj.GetType().ToString()) + nuline;
-				}
-			}
-			return result + nuline + firstlastline + "}\r\n";
+		// Dumper methods
+		public bool DumpObjToFile(string path, object obj, string prefix = "") {
+			return DumpObjToFile(path, obj, 1, 30, false, false, prefix);
 		}
 
-		public string WriteType(string type) {
-			return "(" + type + ")";
+		public bool DumpObjToFile(string path, object obj, int depth, string prefix = "") {
+			return DumpObjToFile(path, obj, depth, 30, false, false, prefix);
 		}
 
-		public string DumpProps(object obj) {
-			return "{\r\n" + string.Join(",\r\n", 
-				TypeDescriptor.GetProperties(obj)
-				.Cast<PropertyDescriptor>()
-				.Select(p => string.Format(CultureInfo.CurrentCulture, "\t{0}: {1}", p.Name, p.GetValue(obj))).ToArray()) + "\r\n}\r\n\r\n";
+		public bool DumpObjToFile(string path, object obj, int depth, int maxItems, string prefix = "") {
+			return DumpObjToFile(path, obj, depth, maxItems, false, false, prefix);
 		}
 
-		// worst method name...
-		public bool TryDumpObjToFile(string path, object obj, string type = "deep", int depth = 1) {
+		public bool DumpObjToFile(string path, object obj, int depth, int maxItems, bool disPrivate, string prefix = "") {
+			return DumpObjToFile(path, obj, depth, maxItems, disPrivate, false, prefix);
+		}
+
+		public bool DumpObjToFile(string path, object obj, int depth, int maxItems, bool disPrivate, bool fullClassName, string prefix = "") {
 			path = ValidateRelativePath(path + ".dump");
 			if (path == null)
 				return false;
 
 			string result = string.Empty;
 
-			if (type.ToLower() == "deep")
-				try { result = ObjToString(obj, depth); } catch { return false; }
-			else if (type.ToLower() == "safe")
-				try { result = DumpProps(obj); } catch { return false; }
+			var settings = new DumpSettings ();
+			settings.MaxDepth = depth;
+			settings.MaxItems = maxItems;
+			settings.DisplayPrivate = disPrivate;
+			settings.UseFullClassNames = fullClassName;
+			result = Dump.ToDump(obj, obj.GetType(), prefix, settings);
 
-			File.AppendAllText(path, result);
+			string dumpHeader =
+				"Object type: " + obj.GetType().ToString() + "\r\n" +
+				"TimeNow: " + DateTime.Now.ToShortDateString() + " " + DateTime.Now.ToShortTimeString() + "\r\n" +
+				"Depth: " + depth.ToString() + "\r\n" +
+				"MaxItems: " + maxItems.ToString() + "\r\n" +
+				"ShowPrivate: " + disPrivate.ToString() + "\r\n" +
+				"UseFullClassName: " + fullClassName.ToString() + "\r\n\r\n";
+
+			File.AppendAllText(path, dumpHeader);
+			File.AppendAllText(path, result + "\r\n\r\n");
 			return true;
 		}
 		// dumper end
@@ -381,6 +319,7 @@
 		}
 
 		public void OnEntityHurt(HurtEvent evt) {
+			// TEST with more plugins... it can cause issues
 			if (evt.DamageEvent.status != LifeStatus.IsAlive) {
 				DamageEvent dmgEvt = evt.DamageEvent;
 				Events.DestroyEvent de = new Events.DestroyEvent(ref dmgEvt, evt.Entity, evt.IsDecay);

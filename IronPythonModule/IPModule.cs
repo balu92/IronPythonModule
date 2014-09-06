@@ -1,13 +1,11 @@
-﻿namespace IronPythonModule
-{
+﻿namespace IronPythonModule {
 	using System;
 	using System.Collections.Generic;
 	using System.IO;
 	using System.Reflection;
 	using Fougerite;
 
-	public class IPModule : Fougerite.Module
-	{
+	public class IPModule : Fougerite.Module {
 		public override string Name { get { return "IPModule"; } }
 		public override string Author { get { return "balu92"; } }
 		public override string Description { get { return "Python (!Monty)"; } }
