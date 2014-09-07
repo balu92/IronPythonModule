@@ -15,20 +15,51 @@
 		public static Dictionary<string, IPPlugin> Plugins{ get { return plugins; } }
 		private DirectoryInfo pluginDirectory;
 
-		#region hooks
+		private static IPModule instance;
 
+		#region hooks
+		// OnAllLoaded
 		public static event IPModule.AllLoadedDelegate OnAllLoaded;
 
 		public delegate void AllLoadedDelegate();
+		// Console
+		public static event IPModule.ConsoleHandlerDelegate OnConsoleReceived;
 
+		public delegate void ConsoleHandlerDelegate(ref ConsoleSystem.Arg arg, bool external);
+
+		public static void ConsoleReceived(ref ConsoleSystem.Arg arg, bool external) {
+			string clss = arg.Class.ToLower ();
+			string func = arg.Function.ToLower ();
+			if (!external) {
+				Fougerite.Player player = Fougerite.Player.FindByPlayerClient(arg.argUser.playerClient);
+				if (player.Admin) {
+					if ((clss == "ipm" || clss == "python") && (func == "reload")) {
+						IPModule.GetInstance().ReloadPlugins();
+						arg.ReplyWith("Python Reloaded!");
+						Logger.LogDebug("[IPModule] " + player.Name + " executed: " + clss + ".reload");
+						return;
+					} else if (clss == "python" && func == "load") {
+						IPModule.GetInstance().LoadPlugin(arg.ArgsStr);
+						arg.ReplyWith("Python.load plugin executed!");
+						Logger.LogDebug("[IPModule] " + player.Name + " executed: " + clss + ".load " + arg.ArgsStr);
+						return;
+					} else if (clss == "python" && func == "unload") {
+						IPModule.GetInstance().UnloadPlugin(arg.ArgsStr);
+						arg.ReplyWith("Python.unload plugin executed!");
+						Logger.LogDebug("[IPModule] " + player.Name + " executed: " + clss + ".unload " + arg.ArgsStr);
+						return;
+					}
+				}
+			}
+
+			if (OnConsoleReceived != null)
+				OnConsoleReceived(ref arg, external);
+		}
+		// EntityDestroy
 		public static event IPModule.EntityDestroyedDelegate OnEntityDestroyed;
 
 		public delegate void EntityDestroyedDelegate(Events.DestroyEvent de);
-
-		public static void EntityDestroyed(Events.DestroyEvent de) {
-			OnEntityDestroyed(de);
-		}
-
+		// EntityHurt
 		public static event IPModule.EntityHurtDelegate OnEntityHurt;
 
 		public delegate void EntityHurtDelegate(Fougerite.Events.HurtEvent he);
@@ -37,8 +68,8 @@
 			if (he.DamageEvent.status != LifeStatus.IsAlive) {
 				DamageEvent dmgEvt = he.DamageEvent;
 				Events.DestroyEvent de = new Events.DestroyEvent(ref dmgEvt, he.Entity, he.IsDecay);
-				if (EntityDestroyed != null)
-					EntityDestroyed(de);
+				if (OnEntityDestroyed != null)
+					OnEntityDestroyed(de);
 				return;
 			}
 
@@ -58,9 +89,13 @@
 			pluginDirectory = new DirectoryInfo(ModuleFolder);
 			plugins = new Dictionary<string, IPPlugin>();
 			ReloadPlugins();
-			var del = new Hooks.EntityHurtDelegate (EntityHurt);
-			if (!IsEntityHurtRegistered(del))
-				Hooks.OnEntityHurt += new Hooks.EntityHurtDelegate (EntityHurt);
+			Hooks.OnEntityHurt -= new Hooks.EntityHurtDelegate (EntityHurt);
+			Hooks.OnEntityHurt += new Hooks.EntityHurtDelegate (EntityHurt);
+			Hooks.OnConsoleReceived -= new Hooks.ConsoleHandlerDelegate (ConsoleReceived);
+			Hooks.OnConsoleReceived += new Hooks.ConsoleHandlerDelegate (ConsoleReceived);
+			if (instance == null) {
+				instance = this;
+			}
 		}
 
 		public override void DeInitialize() {
@@ -68,16 +103,11 @@
 			Hooks.OnEntityHurt -= new Hooks.EntityHurtDelegate (EntityHurt);
 		}
 
-		#endregion
-
-		public bool IsEntityHurtRegistered (Delegate del) {
-			foreach (Delegate dgt in Hooks.OnEntityHurt.GetInvocationList()) {
-				if (dgt == del){
-					return true;
-				}
-			}
-			return false;
+		public static IPModule GetInstance() {
+			return (IPModule)instance;
 		}
+
+		#endregion
 
 		private IEnumerable<String> GetPluginNames() {
 			foreach (DirectoryInfo dirInfo in pluginDirectory.GetDirectories()) {
@@ -110,7 +140,7 @@
 
 		public void UnloadPlugins() {
 			foreach (string name in plugins.Keys)
-				UnloadPlugin(name);
+				UnloadPlugin(name, false);
 			plugins.Clear();
 		}
 
@@ -143,7 +173,7 @@
 			}
 		}
 
-		public void UnloadPlugin(string name) {
+		public void UnloadPlugin(string name, bool removeFromDict = true) {
 			Logger.LogDebug("[IPModule] Unloading " + name + " plugin.");
 
 			if (plugins.ContainsKey (name)) {
@@ -151,7 +181,7 @@
 
 				plugin.KillTimers();
 				RemoveHooks(plugin);
-				plugins.Remove(name);
+				if (removeFromDict) plugins.Remove(name);
 
 				Logger.LogDebug("[IPModule] " + name + " plugin was unloaded successfuly.");
 			} else {
@@ -181,7 +211,7 @@
 				case "On_ItemsLoaded": Hooks.OnItemsLoaded += new Hooks.ItemsDatablocksLoaded(plugin.OnItemsLoaded); break;
 				case "On_TablesLoaded": Hooks.OnTablesLoaded += new Hooks.LootTablesLoaded(plugin.OnTablesLoaded); break;
 				case "On_Chat": Hooks.OnChat += new Hooks.ChatHandlerDelegate(plugin.OnChat); break;
-				case "On_Console": Hooks.OnConsoleReceived += new Hooks.ConsoleHandlerDelegate(plugin.OnConsole); break;
+				case "On_Console": OnConsoleReceived += new ConsoleHandlerDelegate(plugin.OnConsole); break;
 				case "On_Command": Hooks.OnCommand += new Hooks.CommandHandlerDelegate(plugin.OnCommand); break;
 				case "On_PlayerConnected": Hooks.OnPlayerConnected += new Hooks.ConnectionHandlerDelegate(plugin.OnPlayerConnected); break;
 				case "On_PlayerDisconnected": Hooks.OnPlayerDisconnected += new Hooks.DisconnectionHandlerDelegate(plugin.OnPlayerDisconnected); break;

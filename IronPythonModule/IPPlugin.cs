@@ -294,10 +294,14 @@
 		}
 
 		public void OnConsole(ref ConsoleSystem.Arg arg, bool external) {
-			Fougerite.Player player = Fougerite.Player.FindByPlayerClient(arg.argUser.playerClient);
+			string clss = arg.Class.ToLower ();
+			string func = arg.Function.ToLower ();
 			if (!external) {
+				Fougerite.Player player = Fougerite.Player.FindByPlayerClient(arg.argUser.playerClient);
+				arg.ReplyWith(player.Name + " executed: " + clss + "." + func);
 				this.Invoke("On_Console", new object[] { player, arg });
 			} else {
+				arg.ReplyWith("Rcon: " + clss + "." + func);
 				this.Invoke("On_Console", new object[] { null, arg });
 			}
 		}
