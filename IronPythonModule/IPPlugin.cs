@@ -242,8 +242,10 @@
 		public IPPlugin GetPlugin(string name) {
 			IPPlugin plugin;	
 			plugin = IPModule.Plugins[name];
-			if (plugin == null)
+			if (plugin == null) {
+				Logger.LogDebug ("[IPModule] [GetPlugin] '" + name + "' plugin not found!");
 				return null;
+			}
 			return plugin;
 		}
 
@@ -319,17 +321,6 @@
 		}
 
 		public void OnEntityHurt(HurtEvent evt) {
-			// TEST with more plugins... it can cause issues
-			if (evt.DamageEvent.status != LifeStatus.IsAlive) {
-				DamageEvent dmgEvt = evt.DamageEvent;
-				Events.DestroyEvent de = new Events.DestroyEvent(ref dmgEvt, evt.Entity, evt.IsDecay);
-				IPModule.EntityDestroyed(de);
-				return;
-			}
-
-			if (evt.IsDecay)
-				return; // NOTE: this should be done in Fougerite.Hooks imo
-
 			this.Invoke("On_EntityHurt", new object[] { evt });
 		}
 
