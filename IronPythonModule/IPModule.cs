@@ -28,27 +28,37 @@
 		public delegate void ConsoleHandlerDelegate(ref ConsoleSystem.Arg arg, bool external);
 
 		public static void ConsoleReceived(ref ConsoleSystem.Arg arg, bool external) {
-			string clss = arg.Class.ToLower ();
-			string func = arg.Function.ToLower ();
-			if (!external) {
-				Fougerite.Player player = Fougerite.Player.FindByPlayerClient(arg.argUser.playerClient);
-				if (player.Admin) {
-					if ((clss == "ipm" || clss == "python") && (func == "reload")) {
-						IPModule.GetInstance().ReloadPlugins();
-						arg.ReplyWith("Python Reloaded!");
-						Logger.LogDebug("[IPModule] " + player.Name + " executed: " + clss + ".reload");
-						return;
-					} else if (clss == "python" && func == "load") {
-						IPModule.GetInstance().LoadPlugin(arg.ArgsStr);
-						arg.ReplyWith("Python.load plugin executed!");
-						Logger.LogDebug("[IPModule] " + player.Name + " executed: " + clss + ".load " + arg.ArgsStr);
-						return;
-					} else if (clss == "python" && func == "unload") {
-						IPModule.GetInstance().UnloadPlugin(arg.ArgsStr);
-						arg.ReplyWith("Python.unload plugin executed!");
-						Logger.LogDebug("[IPModule] " + player.Name + " executed: " + clss + ".unload " + arg.ArgsStr);
-						return;
-					}
+			string clss = arg.Class.ToLower();
+			string func = arg.Function.ToLower();
+			string name = "RCON_External";
+			bool adminRights = external;
+			if (!external) { 
+				Fougerite.Player player = Fougerite.Player.FindByPlayerClient (arg.argUser.playerClient);
+				if (player.Admin)
+					adminRights = true;
+				name = player.Name;
+			}
+			if (adminRights) {
+				if ((clss == "ipm" || clss == "python") && func == "reload" && arg.ArgsStr == "") {
+					IPModule.GetInstance().ReloadPlugins();
+					arg.ReplyWith("Python Reloaded!");
+					Logger.LogDebug("[IPModule] " + name + " executed: python.reload");
+					return;
+				} else if (clss == "python" && func == "load") {
+					IPModule.GetInstance().LoadPlugin(arg.ArgsStr);
+					arg.ReplyWith("Python.load plugin executed!");
+					Logger.LogDebug("[IPModule] " + name + " executed: python.load " + arg.ArgsStr);
+					return;
+				} else if (clss == "python" && func == "unload") {
+					IPModule.GetInstance().UnloadPlugin(arg.ArgsStr);
+					arg.ReplyWith("Python.unload plugin executed!");
+					Logger.LogDebug("[IPModule] " + name + " executed: python.unload " + arg.ArgsStr);
+					return;
+				} else if (clss == "python" && func == "reload") {
+					IPModule.GetInstance().ReloadPlugin(arg.ArgsStr);
+					arg.ReplyWith("Python.reload plugin executed!");
+					Logger.LogDebug("[IPModule] " + name + " executed: python.reload " + arg.ArgsStr);
+					return;
 				}
 			}
 
@@ -89,18 +99,17 @@
 			pluginDirectory = new DirectoryInfo(ModuleFolder);
 			plugins = new Dictionary<string, IPPlugin>();
 			ReloadPlugins();
-			Hooks.OnEntityHurt -= new Hooks.EntityHurtDelegate (EntityHurt);
-			Hooks.OnEntityHurt += new Hooks.EntityHurtDelegate (EntityHurt);
-			Hooks.OnConsoleReceived -= new Hooks.ConsoleHandlerDelegate (ConsoleReceived);
-			Hooks.OnConsoleReceived += new Hooks.ConsoleHandlerDelegate (ConsoleReceived);
-			if (instance == null) {
+			Hooks.OnEntityHurt -= new Hooks.EntityHurtDelegate(EntityHurt);
+			Hooks.OnEntityHurt += new Hooks.EntityHurtDelegate(EntityHurt);
+			Hooks.OnConsoleReceived -= new Hooks.ConsoleHandlerDelegate(ConsoleReceived);
+			Hooks.OnConsoleReceived += new Hooks.ConsoleHandlerDelegate(ConsoleReceived);
+			if (instance == null)
 				instance = this;
-			}
 		}
 
 		public override void DeInitialize() {
 			UnloadPlugins();
-			Hooks.OnEntityHurt -= new Hooks.EntityHurtDelegate (EntityHurt);
+			Hooks.OnEntityHurt -= new Hooks.EntityHurtDelegate(EntityHurt);
 		}
 
 		public static IPModule GetInstance() {
@@ -176,8 +185,8 @@
 		public void UnloadPlugin(string name, bool removeFromDict = true) {
 			Logger.LogDebug("[IPModule] Unloading " + name + " plugin.");
 
-			if (plugins.ContainsKey (name)) {
-				IPPlugin plugin = plugins [name];
+			if (plugins.ContainsKey(name)) {
+				IPPlugin plugin = plugins[name];
 
 				plugin.KillTimers();
 				RemoveHooks(plugin);
@@ -195,6 +204,11 @@
 			LoadPlugin(plugin.Name);
 		}
 
+		public void ReloadPlugin(string name) {
+			UnloadPlugin(name);
+			LoadPlugin(name);
+		}
+
 		#endregion
 
 		#region install/remove hooks
@@ -205,7 +219,7 @@
 					continue;
 
 				Logger.LogDebug("Found function: " + method);
-				switch (method){
+				switch (method) {
 				case "On_ServerInit": Hooks.OnServerInit += new Hooks.ServerInitDelegate(plugin.OnServerInit); break;
 				case "On_ServerShutdown": Hooks.OnServerShutdown += new Hooks.ServerShutdownDelegate(plugin.OnServerShutdown); break;
 				case "On_ItemsLoaded": Hooks.OnItemsLoaded += new Hooks.ItemsDatablocksLoaded(plugin.OnItemsLoaded); break;
@@ -240,7 +254,7 @@
 					continue;
 
 				Logger.LogDebug("Removing function: " + method);
-				switch (method){
+				switch (method) {
 				case "On_ServerInit": Hooks.OnServerInit -= new Hooks.ServerInitDelegate(plugin.OnServerInit); break;
 				case "On_ServerShutdown": Hooks.OnServerShutdown -= new Hooks.ServerShutdownDelegate(plugin.OnServerShutdown); break;
 				case "On_ItemsLoaded": Hooks.OnItemsLoaded -= new Hooks.ItemsDatablocksLoaded(plugin.OnItemsLoaded); break;
