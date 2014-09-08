@@ -127,7 +127,7 @@
 
 			string result = string.Empty;
 
-			var settings = new DumpSettings ();
+			var settings = new DumpSettings();
 			settings.MaxDepth = depth;
 			settings.MaxItems = maxItems;
 			settings.DisplayPrivate = disPrivate;
@@ -243,7 +243,7 @@
 			IPPlugin plugin;	
 			plugin = IPModule.Plugins[name];
 			if (plugin == null) {
-				Logger.LogDebug ("[IPModule] [GetPlugin] '" + name + "' plugin not found!");
+				Logger.LogDebug("[IPModule] [GetPlugin] '" + name + "' plugin not found!");
 				return null;
 			}
 			return plugin;
@@ -294,8 +294,8 @@
 		}
 
 		public void OnConsole(ref ConsoleSystem.Arg arg, bool external) {
-			string clss = arg.Class.ToLower ();
-			string func = arg.Function.ToLower ();
+			string clss = arg.Class.ToLower();
+			string func = arg.Function.ToLower();
 			if (!external) {
 				Fougerite.Player player = Fougerite.Player.FindByPlayerClient(arg.argUser.playerClient);
 				arg.ReplyWith(player.Name + " executed: " + clss + "." + func);
@@ -320,11 +320,17 @@
 			this.Invoke("On_EntityDeployed", new object[] { player, entity });
 		}
 
-		public void OnEntityDestroyed (Events.DestroyEvent evt) {
+		public void OnEntityDestroyed(Events.DestroyEvent evt) {
+			if (evt.WeaponName == null) {
+				evt.WeaponName = fixWeaponName(evt.DamageEvent);
+			}
 			this.Invoke("On_EntityDestroyed", new object[] { evt });
 		}
 
 		public void OnEntityHurt(HurtEvent evt) {
+			if (evt.WeaponName == null) {
+				evt.WeaponName = fixWeaponName(evt.DamageEvent);
+			}
 			this.Invoke("On_EntityHurt", new object[] { evt });
 		}
 
@@ -333,10 +339,18 @@
 		}
 
 		public void OnNPCHurt(HurtEvent evt) {
+			if (evt.WeaponName == null) {
+				evt.WeaponName = fixWeaponName(evt.DamageEvent);
+			}
+			DumpObjToFile("NPCHurt", evt, 3, 20, true, true);
 			this.Invoke("On_NPCHurt", new object[] { evt });
 		}
 
 		public void OnNPCKilled(DeathEvent evt) {
+			if (evt.WeaponName == null) {
+				evt.WeaponName = fixWeaponName(evt.DamageEvent);
+			}
+			DumpObjToFile("NPCKilled", evt, 3, 20, true, true);
 			this.Invoke("On_NPCKilled", new object[] { evt });
 		}
 
@@ -353,10 +367,16 @@
 		}
 
 		public void OnPlayerHurt(HurtEvent evt) {
+			if (evt.WeaponName == null) {
+				evt.WeaponName = fixWeaponName(evt.DamageEvent, evt.DamageType);
+			}
 			this.Invoke("On_PlayerHurt", new object[] { evt });
 		}
 
 		public void OnPlayerKilled(DeathEvent evt) {
+			if (evt.WeaponName == null) {
+				evt.WeaponName = fixWeaponName(evt.DamageEvent, evt.DamageType);
+			}
 			this.Invoke("On_PlayerKilled", new object[] { evt });
 		}
 
@@ -446,6 +466,28 @@
 		// temporarly, for my laziness
 		public Dictionary<string, object> CreateDict() {
 			return new Dictionary<string, object>();
+		}
+
+		public string fixWeaponName(DamageEvent evt, string dmgType = "Unknown") {
+			string weaponName = "";
+			if (evt.attacker.id is TimedExplosive) {
+				weaponName = "Explosive Charge";
+			} else if (evt.attacker.id is TimedGrenade) {
+				weaponName = "F1 Grenade";
+			} else if (evt.attacker.id.ToString().Contains("MutantBear")) {
+				weaponName = "Mutant Bear Claw";
+			} else if (evt.attacker.id.ToString().Contains("Bear")) {
+				weaponName = "Bear Claw";
+			} else if (evt.attacker.id.ToString().Contains("MutantWolf")) {
+				weaponName = "Mutant Wolf Claw";
+			} else if (evt.attacker.id.ToString().Contains("Wolf")) {
+				weaponName = "Wolf Claw";
+			} else if (evt.attacker.id.Equals(evt.victim.id)) {
+				weaponName = dmgType;
+			} else {
+				weaponName = "Hunting Bow";
+			}
+			return weaponName;
 		}
 	}
 }
