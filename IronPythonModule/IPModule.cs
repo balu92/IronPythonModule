@@ -97,6 +97,9 @@
 
 		public override void Initialize() {
 			pluginDirectory = new DirectoryInfo(ModuleFolder);
+			if (!Directory.Exists (pluginDirectory.FullName)) {
+				Directory.CreateDirectory(pluginDirectory.FullName);
+			}
 			plugins = new Dictionary<string, IPPlugin>();
 			ReloadPlugins();
 			Hooks.OnEntityHurt -= new Hooks.EntityHurtDelegate(EntityHurt);
@@ -240,7 +243,7 @@
 				case "On_EntityDeployed": Hooks.OnEntityDeployed += new Hooks.EntityDeployedDelegate(plugin.OnEntityDeployed); break;
 				case "On_NPCHurt": Hooks.OnNPCHurt += new Hooks.HurtHandlerDelegate(plugin.OnNPCHurt); break;
 				case "On_NPCKilled": Hooks.OnNPCKilled += new Hooks.KillHandlerDelegate(plugin.OnNPCKilled); break;
-				case "On_BlueprintUse": Hooks.OnBlueprintUse += new Hooks.BlueprintUseHandlerDelagate(plugin.OnBlueprintUse); break;
+				case "On_BlueprintUse": Hooks.OnBlueprintUse += new Hooks.BlueprintUseHandlerDelegate(plugin.OnBlueprintUse); break;
 				case "On_DoorUse": Hooks.OnDoorUse += new Hooks.DoorOpenHandlerDelegate(plugin.OnDoorUse); break;
 				case "On_AllPluginsLoaded": IPModule.OnAllLoaded += new IPModule.AllLoadedDelegate(plugin.OnAllPluginsLoaded); break;
 				case "On_PluginInit": plugin.Invoke("On_PluginInit", new object[0]); break;
@@ -275,7 +278,7 @@
 				case "On_EntityDeployed": Hooks.OnEntityDeployed -= new Hooks.EntityDeployedDelegate(plugin.OnEntityDeployed); break;
 				case "On_NPCHurt": Hooks.OnNPCHurt -= new Hooks.HurtHandlerDelegate(plugin.OnNPCHurt); break;
 				case "On_NPCKilled": Hooks.OnNPCKilled -= new Hooks.KillHandlerDelegate(plugin.OnNPCKilled); break;
-				case "On_BlueprintUse": Hooks.OnBlueprintUse -= new Hooks.BlueprintUseHandlerDelagate(plugin.OnBlueprintUse); break;
+				case "On_BlueprintUse": Hooks.OnBlueprintUse -= new Hooks.BlueprintUseHandlerDelegate(plugin.OnBlueprintUse); break;
 				case "On_DoorUse": Hooks.OnDoorUse -= new Hooks.DoorOpenHandlerDelegate(plugin.OnDoorUse); break;
 				case "On_AllPluginsLoaded": IPModule.OnAllLoaded -= new IPModule.AllLoadedDelegate(plugin.OnAllPluginsLoaded); break;
 				}
