@@ -23,6 +23,7 @@
 		public readonly IList<string> Globals;
 
 		public readonly Dictionary<string, IPTimedEvent> Timers;
+		public readonly List<IPTimedEvent> ParallelTimers;
 
 		public IPPlugin(string name, string code, DirectoryInfo path) {
 			Name = name;
@@ -36,7 +37,7 @@
 			Scope.SetVariable("Server", Fougerite.Server.GetServer());
 			Scope.SetVariable("DataStore", DataStore.GetInstance());
 			Scope.SetVariable("Util", Util.GetUtil());
-			Scope.SetVariable("Entities", new LookUp());
+		//	Scope.SetVariable("Structures", new LookUp.Structures());
 			Scope.SetVariable("World", World.GetWorld());
 			Engine.Execute(code, Scope);
 			Class = Engine.Operations.Invoke(Scope.GetVariable(name));
@@ -50,7 +51,7 @@
 				else
 					Fougerite.Logger.LogDebug("[IronPython] Function: " + func + " not found in plugin: " + Name);
 			} catch (Exception ex) {
-				Fougerite.Logger.LogException(ex);
+				Fougerite.Logger.LogError(Engine.GetService<ExceptionOperations>().FormatException(ex));
 			}
 		}
 
@@ -87,21 +88,6 @@
 			}
 			return false;
 		}
-
-		// there is no json yet
-		public void ToJsonFile(string path, string json) {
-	 		path = ValidateRelativePath(path + ".json");
-	 		File.WriteAllText(path, json);
-	 	}
-	 
-	 	public string FromJsonFile(string path) {
-	 		string json = @"";
-	 		path = ValidateRelativePath(path + ".json");
-	 		if (File.Exists(path))
-	 			json = File.ReadAllText(path);
-	 
-	 		return json;
-	 	}
 
 		// Dumper methods
 		public bool DumpObjToFile(string path, object obj, string prefix = "") {
@@ -311,8 +297,6 @@
 		}
 
 		public void OnEntityDecay(DecayEvent evt) {
-			// CONSIDER: if(!evt.Entity...IsAlive) return;
-
 			this.Invoke("On_EntityDecay", new object[] { evt });
 		}
 
@@ -320,17 +304,11 @@
 			this.Invoke("On_EntityDeployed", new object[] { player, entity });
 		}
 
-		public void OnEntityDestroyed(Events.DestroyEvent evt) {
-			if (evt.WeaponName == null) {
-				evt.WeaponName = fixWeaponName(evt.DamageEvent);
-			}
+		public void OnEntityDestroyed(DestroyEvent evt) {
 			this.Invoke("On_EntityDestroyed", new object[] { evt });
 		}
 
 		public void OnEntityHurt(HurtEvent evt) {
-			if (evt.WeaponName == null) {
-				evt.WeaponName = fixWeaponName(evt.DamageEvent);
-			}
 			this.Invoke("On_EntityHurt", new object[] { evt });
 		}
 
@@ -339,17 +317,11 @@
 		}
 
 		public void OnNPCHurt(HurtEvent evt) {
-			if (evt.WeaponName == null) {
-				evt.WeaponName = fixWeaponName(evt.DamageEvent);
-			}
 			DumpObjToFile("NPCHurt", evt, 3, 20, true, true);
 			this.Invoke("On_NPCHurt", new object[] { evt });
 		}
 
 		public void OnNPCKilled(DeathEvent evt) {
-			if (evt.WeaponName == null) {
-				evt.WeaponName = fixWeaponName(evt.DamageEvent);
-			}
 			DumpObjToFile("NPCKilled", evt, 3, 20, true, true);
 			this.Invoke("On_NPCKilled", new object[] { evt });
 		}
@@ -367,16 +339,10 @@
 		}
 
 		public void OnPlayerHurt(HurtEvent evt) {
-			if (evt.WeaponName == null) {
-				evt.WeaponName = fixWeaponName(evt.DamageEvent, evt.DamageType);
-			}
 			this.Invoke("On_PlayerHurt", new object[] { evt });
 		}
 
 		public void OnPlayerKilled(DeathEvent evt) {
-			if (evt.WeaponName == null) {
-				evt.WeaponName = fixWeaponName(evt.DamageEvent, evt.DamageType);
-			}
 			this.Invoke("On_PlayerKilled", new object[] { evt });
 		}
 
@@ -396,17 +362,9 @@
 			this.Invoke("On_ServerShutdown", new object[0]);
 		}
 
-		// timer hooks
-
-		public void OnTimerCB(string name) {
-			if (Globals.Contains(name + "Callback")) {
-				Invoke(name + "Callback", new object[0]);
-			}
-		}
-
-		public void OnTimerCBArgs(string name, Dictionary<string, object> args) {
-			if (Globals.Contains(name + "Callback")) {
-				Invoke(name + "Callback", args);
+		public void OnTimerCB(IPTimedEvent evt) {
+			if (Globals.Contains(evt.Name + "Callback")) {
+				Invoke(evt.Name + "Callback", evt);
 			}
 		}
 
@@ -429,7 +387,7 @@
 			if (timedEvent == null) {
 				timedEvent = new IPTimedEvent(name, (double)timeoutDelay);
 				timedEvent.Args = args;
-				timedEvent.OnFireArgs += new IPTimedEvent.TimedEventFireArgsDelegate(OnTimerCBArgs);
+				timedEvent.OnFire += new IPTimedEvent.TimedEventFireDelegate(OnTimerCB);
 				Timers.Add(name, timedEvent);
 			}
 			return timedEvent;
@@ -447,47 +405,53 @@
 
 		public void KillTimer(string name) {
 			IPTimedEvent timer = GetTimer(name);
-			if (timer != null)
+			if (timer == null)
 				return;
 
-			timer.Stop();
+			timer.Kill();
 			Timers.Remove(name);
 		}
 
 		public void KillTimers() {
 			foreach (IPTimedEvent current in Timers.Values) {
-				current.Stop();
+				current.Kill();
+			}
+			foreach (IPTimedEvent timer in ParallelTimers) {
+				timer.Kill();
 			}
 			Timers.Clear();
+			ParallelTimers.Clear();
 		}
 
 		#endregion
 
-		// temporarly, for my laziness
-		public Dictionary<string, object> CreateDict() {
-			return new Dictionary<string, object>();
+		#region ParalellTimers
+
+		public IPTimedEvent CreateParallelTimer(string name, int timeoutDelay, Dictionary<string, object> args) {
+			IPTimedEvent timedEvent = new IPTimedEvent(name, (double)timeoutDelay);
+			timedEvent.Args = args;
+			timedEvent.OnFire += new IPTimedEvent.TimedEventFireDelegate(OnTimerCB);
+			ParallelTimers.Add(timedEvent);
+			return timedEvent;
 		}
 
-		public string fixWeaponName(DamageEvent evt, string dmgType = "Unknown") {
-			string weaponName = "";
-			if (evt.attacker.id is TimedExplosive) {
-				weaponName = "Explosive Charge";
-			} else if (evt.attacker.id is TimedGrenade) {
-				weaponName = "F1 Grenade";
-			} else if (evt.attacker.id.ToString().Contains("MutantBear")) {
-				weaponName = "Mutant Bear Claw";
-			} else if (evt.attacker.id.ToString().Contains("Bear")) {
-				weaponName = "Bear Claw";
-			} else if (evt.attacker.id.ToString().Contains("MutantWolf")) {
-				weaponName = "Mutant Wolf Claw";
-			} else if (evt.attacker.id.ToString().Contains("Wolf")) {
-				weaponName = "Wolf Claw";
-			} else if (evt.attacker.id.Equals(evt.victim.id)) {
-				weaponName = dmgType;
-			} else {
-				weaponName = "Hunting Bow";
+		public List<IPTimedEvent> GetParallelTimer(string name) {
+			return (from timer in ParallelTimers
+				where timer.Name == name
+				select timer).ToList();
+		}
+
+		public void KillParallelTimer(string name) {
+			foreach (IPTimedEvent timer in GetParallelTimer(name)) {
+				timer.Kill();
+				ParallelTimers.Remove(timer);
 			}
-			return weaponName;
+		}
+
+		#endregion
+
+		public Dictionary<string, object> CreateDict() {
+			return new Dictionary<string, object>();
 		}
 	}
 }

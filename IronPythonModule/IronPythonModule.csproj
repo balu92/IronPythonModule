@@ -8,8 +8,6 @@
     <RootNamespace>IronPythonModule</RootNamespace>
     <AssemblyName>IronPythonModule</AssemblyName>
     <UseMSBuildEngine>False</UseMSBuildEngine>
-    <ProductVersion>8.0.30703</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -32,6 +30,9 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="IronPython.Deps">
+      <HintPath>ref\IronPython.Deps.dll</HintPath>
+    </Reference>
     <Reference Include="Assembly-CSharp">
       <HintPath>ref\Assembly-CSharp.dll</HintPath>
     </Reference>
@@ -40,9 +41,6 @@
     </Reference>
     <Reference Include="Fougerite">
       <HintPath>ref\Fougerite.dll</HintPath>
-    </Reference>
-    <Reference Include="IronPython.Deps">
-      <HintPath>ref\IronPython.Deps.dll</HintPath>
     </Reference>
     <Reference Include="uLink">
       <HintPath>ref\uLink.dll</HintPath>
@@ -56,7 +54,6 @@
     <Compile Include="IPPlugin.cs" />
     <Compile Include="LookUp.cs" />
     <Compile Include="IPModule.cs" />
-    <Compile Include="FougeriteEx\DestroyEvent.cs" />
     <Compile Include="FougeriteEx\IPTimedEvent.cs" />
     <Compile Include="FougeriteEx\Dump.cs" />
   </ItemGroup>

@@ -65,32 +65,6 @@
 			if (OnConsoleReceived != null)
 				OnConsoleReceived(ref arg, external);
 		}
-		// EntityDestroy
-		public static event IPModule.EntityDestroyedDelegate OnEntityDestroyed;
-
-		public delegate void EntityDestroyedDelegate(Events.DestroyEvent de);
-		// EntityHurt
-		public static event IPModule.EntityHurtDelegate OnEntityHurt;
-
-		public delegate void EntityHurtDelegate(Fougerite.Events.HurtEvent he);
-
-		public static void EntityHurt(Fougerite.Events.HurtEvent he) {
-			if (he.DamageEvent.status != LifeStatus.IsAlive) {
-				DamageEvent dmgEvt = he.DamageEvent;
-				Events.DestroyEvent de = new Events.DestroyEvent(ref dmgEvt, he.Entity, he.IsDecay);
-				if (OnEntityDestroyed != null)
-					OnEntityDestroyed(de);
-				return;
-			}
-
-			if (he.IsDecay)
-				return; // NOTE: this should be done in Fougerite.Hooks imo
-
-			if (OnEntityHurt != null)
-				OnEntityHurt(he);
-		}
-
-
 		#endregion
 
 		#region Init/Deinit
@@ -102,8 +76,6 @@
 			}
 			plugins = new Dictionary<string, IPPlugin>();
 			ReloadPlugins();
-			Hooks.OnEntityHurt -= new Hooks.EntityHurtDelegate(EntityHurt);
-			Hooks.OnEntityHurt += new Hooks.EntityHurtDelegate(EntityHurt);
 			Hooks.OnConsoleReceived -= new Hooks.ConsoleHandlerDelegate(ConsoleReceived);
 			Hooks.OnConsoleReceived += new Hooks.ConsoleHandlerDelegate(ConsoleReceived);
 			if (instance == null)
@@ -112,7 +84,6 @@
 
 		public override void DeInitialize() {
 			UnloadPlugins();
-			Hooks.OnEntityHurt -= new Hooks.EntityHurtDelegate(EntityHurt);
 		}
 
 		public static IPModule GetInstance() {
@@ -237,9 +208,9 @@
 				case "On_PlayerSpawn": Hooks.OnPlayerSpawning += new Hooks.PlayerSpawnHandlerDelegate(plugin.OnPlayerSpawn); break;
 				case "On_PlayerSpawned": Hooks.OnPlayerSpawned += new Hooks.PlayerSpawnHandlerDelegate(plugin.OnPlayerSpawned); break;
 				case "On_PlayerGathering": Hooks.OnPlayerGathering += new Hooks.PlayerGatheringHandlerDelegate(plugin.OnPlayerGathering); break;
-				case "On_EntityHurt": OnEntityHurt += new EntityHurtDelegate(plugin.OnEntityHurt); break;
+				case "On_EntityHurt": Hooks.OnEntityHurt += new Hooks.EntityHurtDelegate(plugin.OnEntityHurt); break;
 				case "On_EntityDecay": Hooks.OnEntityDecay += new Hooks.EntityDecayDelegate(plugin.OnEntityDecay); break;
-				case "On_EntityDestroyed": OnEntityDestroyed += new EntityDestroyedDelegate(plugin.OnEntityDestroyed); break;
+				case "On_EntityDestroyed": Hooks.OnEntityDestroyed += new Hooks.EntityDestroyedDelegate(plugin.OnEntityDestroyed); break;
 				case "On_EntityDeployed": Hooks.OnEntityDeployed += new Hooks.EntityDeployedDelegate(plugin.OnEntityDeployed); break;
 				case "On_NPCHurt": Hooks.OnNPCHurt += new Hooks.HurtHandlerDelegate(plugin.OnNPCHurt); break;
 				case "On_NPCKilled": Hooks.OnNPCKilled += new Hooks.KillHandlerDelegate(plugin.OnNPCKilled); break;
@@ -274,7 +245,7 @@
 				case "On_PlayerGathering": Hooks.OnPlayerGathering -= new Hooks.PlayerGatheringHandlerDelegate(plugin.OnPlayerGathering); break;
 				case "On_EntityHurt": Hooks.OnEntityHurt -= new Hooks.EntityHurtDelegate(plugin.OnEntityHurt); break;
 				case "On_EntityDecay": Hooks.OnEntityDecay -= new Hooks.EntityDecayDelegate(plugin.OnEntityDecay); break;
-				case "On_EntityDestroyed": IPModule.OnEntityDestroyed -= new IPModule.EntityDestroyedDelegate(plugin.OnEntityDestroyed); break;
+				case "On_EntityDestroyed": Hooks.OnEntityDestroyed -= new Hooks.EntityDestroyedDelegate(plugin.OnEntityDestroyed); break;
 				case "On_EntityDeployed": Hooks.OnEntityDeployed -= new Hooks.EntityDeployedDelegate(plugin.OnEntityDeployed); break;
 				case "On_NPCHurt": Hooks.OnNPCHurt -= new Hooks.HurtHandlerDelegate(plugin.OnNPCHurt); break;
 				case "On_NPCKilled": Hooks.OnNPCKilled -= new Hooks.KillHandlerDelegate(plugin.OnNPCKilled); break;

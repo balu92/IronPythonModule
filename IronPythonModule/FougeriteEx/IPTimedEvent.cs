@@ -13,11 +13,9 @@
 		private long lastTick;
 		private int _elapsedCount;
 
-		public delegate void TimedEventFireDelegate(string name);
-		public delegate void TimedEventFireArgsDelegate(string name, Dictionary<string, object> list);
+		public delegate void TimedEventFireDelegate(IPTimedEvent evt);
 
 		public event TimedEventFireDelegate OnFire;
-		public event TimedEventFireArgsDelegate OnFireArgs;
 
 		public IPTimedEvent(string name, double interval) {
 			this._name = name;
@@ -34,10 +32,7 @@
 
 		private void _timer_Elapsed(object sender, ElapsedEventArgs e) {
 			if (this.OnFire != null) {
-				this.OnFire(this.Name);
-			}
-			if (this.OnFireArgs != null) {
-				this.OnFireArgs(this.Name, this.Args);
+				this.OnFire(this);
 			}
 
 			this._elapsedCount += 1;
@@ -51,6 +46,11 @@
 
 		public void Stop() {
 			this._timer.Stop();
+		}
+
+		public void Kill() {
+			this._timer.Stop();
+			this._timer.Dispose();
 		}
 
 		public Dictionary<string, object> Args {
