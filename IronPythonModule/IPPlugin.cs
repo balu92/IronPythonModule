@@ -30,6 +30,7 @@
 			Code = code;
 			RootDir = path;
 			Timers = new Dictionary<string, IPTimedEvent>();
+			ParallelTimers = new List<IPTimedEvent>();
 
 			Engine = IronPython.Hosting.Python.CreateEngine();
 			Scope = Engine.CreateScope();
@@ -37,7 +38,6 @@
 			Scope.SetVariable("Server", Fougerite.Server.GetServer());
 			Scope.SetVariable("DataStore", DataStore.GetInstance());
 			Scope.SetVariable("Util", Util.GetUtil());
-		//	Scope.SetVariable("Structures", new LookUp.Structures());
 			Scope.SetVariable("World", World.GetWorld());
 			Engine.Execute(code, Scope);
 			Class = Engine.Operations.Invoke(Scope.GetVariable(name));
@@ -317,12 +317,10 @@
 		}
 
 		public void OnNPCHurt(HurtEvent evt) {
-			DumpObjToFile("NPCHurt", evt, 3, 20, true, true);
 			this.Invoke("On_NPCHurt", new object[] { evt });
 		}
 
 		public void OnNPCKilled(DeathEvent evt) {
-			DumpObjToFile("NPCKilled", evt, 3, 20, true, true);
 			this.Invoke("On_NPCKilled", new object[] { evt });
 		}
 
