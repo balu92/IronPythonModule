@@ -122,7 +122,7 @@
 
 			string dumpHeader =
 				"Object type: " + obj.GetType().ToString() + "\r\n" +
-				"TimeNow: " + DateTime.Now.ToShortDateString() + " " + DateTime.Now.ToShortTimeString() + "\r\n" +
+				"TimeNow: " + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff") + "\r\n" +
 				"Depth: " + depth.ToString() + "\r\n" +
 				"MaxItems: " + maxItems.ToString() + "\r\n" +
 				"ShowPrivate: " + disPrivate.ToString() + "\r\n" +
@@ -148,7 +148,7 @@
 			if (path == null)
 				return;
 
-			File.AppendAllText(path, "[" + DateTime.Now.ToShortDateString() + " " + DateTime.Now.ToShortTimeString() + "] " + text + "\r\n");
+			File.AppendAllText(path, "[" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff") + "] " + text + "\r\n");
 		}
 
 		public void RotateLog(string logfile, int max = 6) {
